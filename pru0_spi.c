@@ -71,7 +71,7 @@ int CPOL=0,CPHA=0;
 			for (int i=0;i<8;i++)
 			{
 				//set clk 0 to set it in active state
-				__R30^=(0<<CLK);
+				__R30^=(1<<CLK);
 				//write data on the falling edge
 				__R30=mosi| __R30;
 				//set clk 1 to idle state
@@ -88,7 +88,7 @@ int CPOL=0,CPHA=0;
 			for (int i=0;i<8;i++)
 			{
 				//set clk 0 to set it in active state
-				__R30^=(0<<CLK);
+				__R30^=(1<<CLK);
 				//set clk 1 to idle state
 				__R30^=(1<<CLK);
 				//write data on the rising edge
