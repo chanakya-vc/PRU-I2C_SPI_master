@@ -71,8 +71,8 @@ int CPOL=0,CPHA=0;
 				//set clk 1 to idle state
 				__R30^=(1<<CLK);
 				
-				//Reset the register
-				__R30=0x0000;
+				//Reset the data pin in the register to 0
+				__R30&=(0<<P8_11);
 				//shift data in Mosi
 				mosi<<=1;
 
@@ -87,8 +87,8 @@ int CPOL=0,CPHA=0;
 				__R30^=(1<<CLK);
 				//write data on the rising edge
 				__R30=mosi| __R30;
-				//Reset the register
-				__R30=0x0000;
+				//Reset the data pin in the register to 0
+				__R30&=(0<<P8_11);
 				//shift data in Mosi
 				mosi<<=1;
 
