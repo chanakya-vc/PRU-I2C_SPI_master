@@ -18,7 +18,7 @@ int CPOL=0,CPHA=0;
 	//shifting this data to the 15 place
 	mosi<<=P8_11;
 	scanf("%d %d",&CPOL,&CPHA);
-	//set value of the choice variable between 0 and 4
+	//set value of the choice variable between 0 and 3
 	int choice=CPOL*2+CPHA;
 	if(choice>=2)
 	{
