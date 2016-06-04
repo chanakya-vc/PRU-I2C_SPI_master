@@ -35,7 +35,7 @@ int CPOL=0,CPHA=0;
 	switch(choice){
 		case 0:	
 
-			for (int i=0;i<7;i++)
+			for (int i=0;i<8;i++)
 			{
 				//set clk 1
 				__R30^=(1<<CLK);
