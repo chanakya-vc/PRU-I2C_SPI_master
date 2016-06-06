@@ -29,7 +29,7 @@ CFLAGS= -v3 -s -al -O3 --c99 --gcc --printf_support=minimal --symdebug:none $(IN
 LDFLAGS=-cr --diag_warning=225 -lam335x_pru.cmd -x -i$(CGTDIR)/lib
 
 pru0_spi: pru0_spi.obj
-	$(CC) $(CFLAGS) $^ -q -z $(LDFLAGS) -o $@
+	$(LD) $(LDFLAGS) $^ -o $@
 
 %.obj: %.c
 	$(CC) $(CFLAGS) -c $< -ea=.s
