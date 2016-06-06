@@ -9,10 +9,10 @@ LD=lnkpru
 
 # Default installation location for TI code generation tools (TI-CGT PRU)
 # Change if you have installed at some other location
-CGTDIR = /usr/share/ti/cgt-pru
+CGTDIR = /home/vc/Desktop/beagle-gsoc/compile/ti-cgt-pru_2.1.2
 
 # PRU software support package by TI
-SWDIR ?= /usr/share/pru-software-support-package
+SWDIR ?= /home/vc/Desktop/beagle-gsoc/compile/pru-software-support-package
 
 INCLUDEDIR = -I$(SWDIR)/include -I$(SWDIR)/include/am335x -I$(CGTDIR)/include -I$(CGTDIR)/lib -I./include
 
@@ -34,27 +34,23 @@ LDFLAGS=-cr --diag_warning=225 -lam335x_pru.cmd -x
 
 .PHONY: all clean
 
-all: rproc-pru0-fw  rproc-pru1-fw
+all: pru0_spi
 
 %.obj: %.c
 	@echo "  CC	$@"
 	@$(CC) $(CFLAGS) -c $< -ea=.s
 
-rproc-pru0-fw: rproc-pru0-fw.obj
+pru0_spi: pru0_spi
 	@echo "  LD	$@"
 	@$(CC) $(CFLAGS) $^ -q -z $(LDFLAGS) -o $@
 	
-rproc-pru1-fw: rproc-pru1-fw.obj pru_vring.obj
-	@echo "  LD	$@"
-	@$(CC) $(CFLAGS) $^ -q -z $(LDFLAGS) -o $@
-	
-install-frombb: rproc-pru0-fw rproc-pru1-fw
-	cp -t /lib/firmware rproc-pru0-fw
-	cp -t /lib/firmware rproc-pru1-fw
+#install-frombb: rproc-pru0-fw rproc-pru1-fw
+#	cp -t /lib/firmware rproc-pru0-fw
+#	cp -t /lib/firmware rproc-pru1-fw
 
-install-tobb: rproc-pru0-fw rproc-pru1-fw
-	scp -q rproc-pru0-fw $(BBHOST):/lib/firmware
-	scp -q rproc-pru1-fw $(BBHOST):/lib/firmware
+#install-tobb: rproc-pru0-fw rproc-pru1-fw
+#	scp -q rproc-pru0-fw $(BBHOST):/lib/firmware
+#	scp -q rproc-pru1-fw $(BBHOST):/lib/firmware
 
 clean:
 	rm -f *.obj *.lst *.s rproc-pru0-fw rproc-pru1-fw *.pp
