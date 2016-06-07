@@ -1,20 +1,16 @@
 # * Makefile for PRU firmware
 # * Builds only with CLPRU 2.0.0B* and above
-# BBB hostname
-BBHOST = root@192.168.7.2
 
 # Tools to be used
-CC=clpru
-LD=lnkpru
+CC = clpru
+LD = lnkpru
 
-# Default installation location for TI code generation tools (TI-CGT PRU)
+# Default installation location for TI code generation tools (TI-CGT PRU) is
+# in your home directory (if you're sane).
 # Change if you have installed at some other location
-CGTDIR = /home/vc/Desktop/beagle-gsoc/compile/ti-cgt-pru_2.1.2
+CGTDIR ?= $(HOME)/ti-cgt-pru_2.1.2
 
-# PRU software support package by TI
-SWDIR ?= /home/vc/Desktop/beagle-gsoc/compile/pru-software-support-package
-
-INCLUDEDIR = -I$(SWDIR)/include -I$(SWDIR)/include/am335x -I$(CGTDIR)/include -I$(CGTDIR)/lib -I./include
+INCLUDEDIR = -I$(CGTDIR)/include -I$(CGTDIR)/lib -I./include
 
 # Compiler Options
 # -v3				PRU version 3
@@ -30,29 +26,16 @@ CFLAGS= -v3 -s -al -O3 --c99 --gcc --printf_support=minimal --symdebug:none $(IN
 # Linker Options
 # -cr 				Link using RAM auto init model (loader assisted)
 # -x				Reread libs until no unresolved symbols found
-LDFLAGS=-cr --diag_warning=225 -lam335x_pru.cmd -x
+LDFLAGS=-cr --diag_warning=225 -lam335x_pru.cmd -x -i$(CGTDIR)/lib
 
-.PHONY: all clean
-
-all: pru0_spi
+pru0_spi: pru0_spi.obj
+	$(LD) $(LDFLAGS) $^ -o $@
 
 %.obj: %.c
-	@echo "  CC	$@"
-	@$(CC) $(CFLAGS) -c $< -ea=.s
+	$(CC) $(CFLAGS) -c $< -ea=.s
 
-pru0_spi: pru0_spi
-	@echo "  LD	$@"
-	@$(CC) $(CFLAGS) $^ -q -z $(LDFLAGS) -o $@
-	
-#install-frombb: rproc-pru0-fw rproc-pru1-fw
-#	cp -t /lib/firmware rproc-pru0-fw
-#	cp -t /lib/firmware rproc-pru1-fw
-
-#install-tobb: rproc-pru0-fw rproc-pru1-fw
-#	scp -q rproc-pru0-fw $(BBHOST):/lib/firmware
-#	scp -q rproc-pru1-fw $(BBHOST):/lib/firmware
-
+.PHONY: clean
 clean:
-	rm -f *.obj *.lst *.s rproc-pru0-fw rproc-pru1-fw *.pp
+	rm -f *.lst *.obj *.pp *.s pru0_spi
 
 -include $(patsubst %.obj,%.pp,$(OBJS))
