@@ -1,16 +1,11 @@
-/************************************************************************************
 
-
-
-
-*************************************************************************************/
 #include <stdint.h>
 #include <pru_cfg.h>
 #define   P8_11  15
 #define   CLK  14
 volatile register uint32_t __R30;
-//volatile register uint32_t __R31
-int CPOL=0,CPHA=0;
+//volatile register uuint8_t32_t __R31
+uint8_t CPOL=0,CPHA=0;
 
  void main()
 {
@@ -23,9 +18,10 @@ int CPOL=0,CPHA=0;
 	mosi=0X6;
 	//shifting this data to the 15 place
 	mosi<<=P8_11;
-	scanf("%d %d",&CPOL,&CPHA);
+	CPOL=1;
+	CPHA=2;
 	//set value of the choice variable between 0 and 3
-	int choice=CPOL*2+CPHA;
+	uint8_t choice=CPOL*2+CPHA;
 	if(choice>=2)
 	{
 		//set the clock 1 to be in its idle state
@@ -35,7 +31,7 @@ int CPOL=0,CPHA=0;
 	switch(choice){
 		case 0:	
 
-			for (int i=0;i<8;i++)
+			for (uint8_t i=0;i<8;i++)
 			{
 				//set clk 1
 				__R30^=(1<<CLK);
@@ -51,7 +47,7 @@ int CPOL=0,CPHA=0;
 		    }
 
 		case 1:
-			for (int i=0;i<8;i++)
+			for (uint8_t i=0;i<8;i++)
 			{
 				//set clk 1
 				__R30^=(1<<CLK);
@@ -68,7 +64,7 @@ int CPOL=0,CPHA=0;
 		    }
 			                  
 		case 2:
-			for (int i=0;i<8;i++)
+			for (uint8_t i=0;i<8;i++)
 			{
 				//set clk 0 to set it in active state
 				__R30^=(1<<CLK);
@@ -85,7 +81,7 @@ int CPOL=0,CPHA=0;
 		    }
 
 		case 3:
-			for (int i=0;i<8;i++)
+			for (uint8_t i=0;i<8;i++)
 			{
 				//set clk 0 to set it in active state
 				__R30^=(1<<CLK);
