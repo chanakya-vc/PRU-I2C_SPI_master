@@ -14,6 +14,6 @@ To test the firmware code ,perform the following steps:
 
 4)Then scp the file to /lib/firmware/am335x-pru0-fw on the BeagleBone
 
-5)Use congig-pin to configure P8_11 and P8_12 as output pins.Use config-pin -h for help with syntax.
+5)Use config-pin to configure P8_11 and P8_12 as output pins.Use config-pin -h for help with syntax.
 
 6)Then rmmod pru_rproc and modprobe pru_rproc to load the firmware.Observe with a logic analyzer.
