@@ -18,8 +18,8 @@ MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 CURRENT_DIR := $(notdir $(patsubst %/,%,$(dir $(MKFILE_PATH))))
 PROJ_NAME=$(CURRENT_DIR)
 LINKER_COMMAND_FILE=./AM335x_PRU.cmd
-LIBS=--library=../../../lib/rpmsg_lib.lib
-INCLUDE=--include_path=../../../include --include_path=../../../include/am335x
+LIBS=--library=/home/vc/Desktop/beagle-gsoc/compile/pru-software-support-package/lib/rpmsg_lib.lib 
+INCLUDE=--include_path=/home/vc/Desktop/beagle-gsoc/compile/pru-software-support-package/include --include_path=/home/vc/Desktop/beagle-gsoc/compile/pru-software-support-package/include/am335x 
 STACK_SIZE=0x100
 HEAP_SIZE=0x100
 GEN_DIR=gen
