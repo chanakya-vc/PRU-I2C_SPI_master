@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Exposing the PRU as an SPI-I2C Master Controller</title>
-    <link>/</link>
+    <link>www.vaibhavchoudhary.com/PRU-I2C_SPI_master/</link>
     <description>Recent content on Exposing the PRU as an SPI-I2C Master Controller</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>Vaibhav Choudhary</copyright>
     <lastBuildDate>Sun, 15 May 2016 00:58:03 +0530</lastBuildDate>
-    <atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="www.vaibhavchoudhary.com/PRU-I2C_SPI_master/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>Precoding period</title>
-      <link>/post/Precoding-period/</link>
+      <link>/www.vaibhavchoudhary.com/PRU-I2C_SPI_master/post/Precoding-period/</link>
       <pubDate>Sun, 15 May 2016 00:58:03 +0530</pubDate>
       
-      <guid>/post/Precoding-period/</guid>
+      <guid>/www.vaibhavchoudhary.com/PRU-I2C_SPI_master/post/Precoding-period/</guid>
       <description>&lt;p&gt;This is the first post in a long list of Blogs to come for my Google Summer of Code Project. The blogs are currently in development.
 Will be online soon.
 This is a test post to check whether my website is working correctly or not.&lt;/p&gt;
