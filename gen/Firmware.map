@@ -1,7 +1,7 @@
 ******************************************************************************
                      PRU Linker Unix v2.1.2                    
 ******************************************************************************
->> Linked Sat Jun 11 04:21:37 2016
+>> Linked Sun Jun 12 16:45:51 2016
 
 OUTPUT FILE NAME:   <gen/Firmware.out>
 ENTRY POINT SYMBOL: "_c_int00_noinit_noargs_noexit"  address: 00000000
@@ -12,7 +12,7 @@ MEMORY CONFIGURATION
          name            origin    length      used     unused   attr    fill
 ----------------------  --------  ---------  --------  --------  ----  --------
 PAGE 0:
-  PRU_IMEM              00000000   00002000  000000c0  00001f40  RWIX
+  PRU_IMEM              00000000   00002000  000000c4  00001f3c  RWIX
 
 PAGE 1:
   PRU_DMEM_0_1          00000000   00002000  00000117  00001ee9  RWIX
@@ -60,10 +60,10 @@ section   page    origin      length       input sections
 *          0    00000000    00000014     
                   00000000    00000014     rtspruv3_le.lib : boot_special.obj (.text:_c_int00_noinit_noargs_noexit)
 
-.text      0    00000014    000000ac     
-                  00000014    0000009c     pru0_spi.object (.text:main)
-                  000000b0    00000008     rtspruv3_le.lib : exit.obj (.text:abort)
-                  000000b8    00000008                     : exit.obj (.text:loader_exit)
+.text      0    00000014    000000b0     
+                  00000014    000000a0     pru0_spi.object (.text:main)
+                  000000b4    00000008     rtspruv3_le.lib : exit.obj (.text:abort)
+                  000000bc    00000008                     : exit.obj (.text:loader_exit)
 
 .stack     1    00000000    00000100     UNINITIALIZED
                   00000000    00000004     rtspruv3_le.lib : boot.obj (.stack)
@@ -104,7 +104,7 @@ GLOBAL SYMBOLS: SORTED ALPHABETICALLY BY Name
 
 page  address   name                         
 ----  -------   ----                         
-0     000000b8  C$$EXIT                      
+0     000000bc  C$$EXIT                      
 1     00000115  CPHA                         
 1     00000114  CPOL                         
 2     00026000  CT_CFG                       
@@ -178,7 +178,7 @@ abs   ffffffff  __binit__
 abs   ffffffff  __c_args__                   
 0     00000000  _c_int00_noinit_noargs_noexit
 1     00000000  _stack                       
-0     000000b0  abort                        
+0     000000b4  abort                        
 abs   ffffffff  binit                        
 1     00000116  i                            
 0     00000014  main                         
@@ -191,8 +191,8 @@ page  address   name
 ----  -------   ----                         
 0     00000000  _c_int00_noinit_noargs_noexit
 0     00000014  main                         
-0     000000b0  abort                        
-0     000000b8  C$$EXIT                      
+0     000000b4  abort                        
+0     000000bc  C$$EXIT                      
 1     00000000  _stack                       
 1     00000100  __TI_STACK_END               
 1     00000100  pru_remoteproc_ResourceTable 
