@@ -43,8 +43,8 @@ uint8_t i=0;
 					__R30|=(1<<P8_11);
 				}
 				else
-				{
-					__R30&=(0<<P8_11);
+				{    //This generates 0 at the specified bit and 1 at all others
+					__R30&=~(1<<P8_11);
 				}
                 
 				//set clk 1
@@ -64,7 +64,7 @@ uint8_t i=0;
 				}
 				else
 				{
-					__R30&=(0<<P8_11);
+					__R30&=~(1<<P8_11);
 				}
 				
 				//set clk 1
@@ -87,7 +87,7 @@ uint8_t i=0;
 				}
 				else
 				{
-					__R30&=(0<<P8_11);
+					__R30&=~(1<<P8_11);
 				}
 				
 				//set clk 0 to set it in active state
@@ -107,7 +107,7 @@ uint8_t i=0;
 				}
 				else
 				{
-					__R30&=(0<<P8_11);
+					__R30&=~(1<<P8_11);
 				}
 				//set clk 0 to set it in active state
 				__R30^=(1<<CLK);
