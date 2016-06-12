@@ -1,3 +1,7 @@
+/*
+ *Written by Vaibhav Choudhary under GSOC-2016 for BeagleBoard.org
+ *Copyright (C) 2016 Vaibhav Choudhary 
+ */
 #include <stdint.h>
 #include "resource_table_empty.h"
 #include <pru_cfg.h>
@@ -33,33 +37,41 @@ uint8_t i=0;
 
 			for ( i=0;i<8;i++)
 			{
-				//set clk 1
-				__R30^=(1<<CLK);
-				//write data to it
+				//Write Data on MOSI pin with LSB being first transferred
 				if ((mosi<<(7-i))&0x80)
 				{
 					__R30|=(1<<P8_11);
 				}
+				else
+				{
+					__R30&=(0<<P8_11);
+				}
+                
+				//set clk 1
+				__R30^=(1<<CLK);
+	
 				//set clk 0
 				__R30^=(1<<CLK);
-				//Reset the register
-				__R30=0x0000;
 			}
 		    break;
 		case 1:
 			for ( i=0;i<8;i++)
 			{
-				//set clk 1
-				__R30^=(1<<CLK);
-				//set clk 0
-				__R30^=(1<<CLK);
-				//write data on the falling edge
+				//Write Data on MOSI pin with LSB being first transferred
 				if ((mosi<<(7-i))&0x80)
 				{
 					__R30|=(1<<P8_11);
 				}
-				//Reset the registers
-				__R30=0x0000;
+				else
+				{
+					__R30&=(0<<P8_11);
+				}
+				
+				//set clk 1
+				__R30^=(1<<CLK);
+				//set clk 0
+				__R30^=(1<<CLK);
+
 
 		    }
 		    break;
@@ -67,38 +79,41 @@ uint8_t i=0;
 		case 2:
 			for ( i=0;i<8;i++)
 			{
-				//set clk 0 to set it in active state
-				__R30^=(1<<CLK);
-				//write data on the falling edge
+				
+				//Write Data on MOSI pin with LSB being first transferred
 				if ((mosi<<(7-i))&0x80)
 				{
 					__R30|=(1<<P8_11);
 				}
+				else
+				{
+					__R30&=(0<<P8_11);
+				}
+				
+				//set clk 0 to set it in active state
+				__R30^=(1<<CLK);
 				//set clk 1 to idle state
 				__R30^=(1<<CLK);
 				
-				//Reset the data pin in the register to 0
-				__R30&=(0<<P8_11);
-				//shift data in Mosi
-
-
-		    }
+			}
 		    break;
 		case 3:
 			for ( i=0;i<8;i++)
 			{
-				//set clk 0 to set it in active state
-				__R30^=(1<<CLK);
-				//set clk 1 to idle state
-				__R30^=(1<<CLK);
-				//write data on the rising edge
+				//Write Data on MOSI pin with LSB being first transferred
 				if ((mosi<<(7-i))&0x80)
 				{
 					__R30|=(1<<P8_11);
 				}
-				//Reset the data pin in the register to 0
-				__R30&=(0<<P8_11);
-				//shift data in Mosi
+				else
+				{
+					__R30&=(0<<P8_11);
+				}
+				//set clk 0 to set it in active state
+				__R30^=(1<<CLK);
+				//set clk 1 to idle state
+				__R30^=(1<<CLK);
+				
 			}
 
 		    break;
