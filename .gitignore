@@ -3,3 +3,4 @@
 *.pp
 *.s
 pru0_spi
+gen/*

@@ -22,8 +22,8 @@ uint8_t i=0;
 	__R30=0x0000;
 	//setmosi to test data
 	mosi=0X6;
-	CPOL=1;
-	CPHA=1;
+	CPOL=0;
+	CPHA=0;
 	//set value of the clock_pol_pha variable between 0 and 3
 	uint8_t clock_pol_pha=(CPOL*2)+CPHA;
 	if (clock_pol_pha>=2)
