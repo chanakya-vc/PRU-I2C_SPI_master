@@ -1,0 +1,5 @@
+*.lst
+*.obj
+*.pp
+*.s
+pru0_spi

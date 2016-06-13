@@ -29,7 +29,7 @@ uint8_t i=0;
 	if (clock_pol_pha>=2)
 	{
 		//set the clock 1 to be in its idle state
-		__R30^=(1<<CLK);
+		__R30|=(1<<CLK);
 	}
 
 	switch(clock_pol_pha){
@@ -48,10 +48,10 @@ uint8_t i=0;
 				}
                 
 				//set clk 1
-				__R30^=(1<<CLK);
+				__R30|=(1<<CLK);
 	
 				//set clk 0
-				__R30^=(1<<CLK);
+				__R30&=~(1<<CLK);
 			}
 		    break;
 		case 1:
@@ -68,9 +68,9 @@ uint8_t i=0;
 				}
 				
 				//set clk 1
-				__R30^=(1<<CLK);
+				__R30|=(1<<CLK);
 				//set clk 0
-				__R30^=(1<<CLK);
+				__R30&=~(1<<CLK);
 
 
 		    }
@@ -91,9 +91,9 @@ uint8_t i=0;
 				}
 				
 				//set clk 0 to set it in active state
-				__R30^=(1<<CLK);
+				__R30&=~(1<<CLK);
 				//set clk 1 to idle state
-				__R30^=(1<<CLK);
+				__R30|=(1<<CLK);
 				
 			}
 		    break;
@@ -110,9 +110,9 @@ uint8_t i=0;
 					__R30&=~(1<<P8_11);
 				}
 				//set clk 0 to set it in active state
-				__R30^=(1<<CLK);
+				__R30&=~(1<<CLK);
 				//set clk 1 to idle state
-				__R30^=(1<<CLK);
+				__R30|=(1<<CLK);
 				
 			}
 
