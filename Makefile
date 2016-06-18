@@ -36,9 +36,6 @@
 #(Linux) export PRU_CGT=/home/jason/ti/ccs_v6_1_0/ccsv6/tools/compiler/ti-cgt-pru_2.1.0
 #(Windows) set PRU_CGT=C:/TI/ccs_v6_0_1/ccsv6/tools/compiler/ti-cgt-pru_2.1.0
 
-#Similarly PRU_SW_PKG should point to the location where you have installed PRU Software
-#Support Package.Example:
-#(Linux)export PRU_SW_PKG=/home/vc/Desktop/beagle-gsoc/compile/pru-software-support-package
 ifndef PRU_CGT
 define ERROR_BODY
 
@@ -52,25 +49,11 @@ endef
 $(error $(ERROR_BODY))
 endif
 
-ifndef PRU_SW_PKG
-define ERROR_BODY
-
-***************************************************************************************************
-PRU_SW_PKG environment variable is not set. Examples given:
-(Linux)export PRU_SW_PKG=/home/vc/Desktop/beagle-gsoc/compile/pru-software-support-package
-Please set the variable to the location of the pru-software-support-package to compile the Firmware.
-****************************************************************************************************
-
-endef
-$(error $(ERROR_BODY))
-endif
-
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 CURRENT_DIR := $(notdir $(patsubst %/,%,$(dir $(MKFILE_PATH))))
 PROJ_NAME=$(CURRENT_DIR)
 LINKER_COMMAND_FILE=./AM335x_PRU.cmd
-LIBS=--library=$(PRU_SW_PKG)/lib/rpmsg_lib.lib 
-INCLUDE=--include_path=$(PRU_SW_PKG)/include --include_path=$(PRU_SW_PKG)/include/am335x 
+INCLUDE=--include_path=./include/
 STACK_SIZE=0x100
 HEAP_SIZE=0x100
 GEN_DIR=gen
@@ -107,7 +90,7 @@ $(TARGET): $(OBJECTS) $(LINKER_COMMAND_FILE)
 	@echo ''
 	@echo 'Building target: $@'
 	@echo 'Invoking: PRU Linker'
-	$(PRU_CGT)/bin/clpru $(CFLAGS) -z -i$(PRU_CGT)/lib -i$(PRU_CGT)/include $(LFLAGS) -o $(TARGET) $(OBJECTS) -m$(MAP) $(LINKER_COMMAND_FILE) --library=libc.a $(LIBS)
+	$(PRU_CGT)/bin/clpru $(CFLAGS) -z -i$(PRU_CGT)/lib -i$(PRU_CGT)/include $(LFLAGS) -o $(TARGET) $(OBJECTS) -m$(MAP) $(LINKER_COMMAND_FILE) --library=libc.a
 	@echo 'Finished building target: $@'
 	@echo ''
 	@echo 'Output files can be found in the "$(GEN_DIR)" directory'
