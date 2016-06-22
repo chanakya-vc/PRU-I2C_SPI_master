@@ -10,7 +10,7 @@
 #include <asm/uaccess.h>
 #include <linux/ioport.h>
 #include <asm/io.h>
-#include <stdint.h> 
+#include <stdint.h>
 uint8_t *mosi;
 static void * Data_pointer; 
 //struct dev_t stores the major and minor numbers
@@ -56,6 +56,7 @@ static ssize_t spi_read(struct file *filp, const char __user *buf, size_t count,
 {
 	uint8_t mosi_transfer_read=ioread8(Data_pointer);
 	*mosi=mosi_transfer_read;
+	int len =sizeof(mosi_transfer_read);
 	copy_to_user(buf,mosi,len);
 }
 static int __init spi_init(void)
@@ -87,7 +88,7 @@ static void __exit spi_exit(void)
 {
     device_destroy(cl, device1);
     class_destroy(cl);
-    cdev_del(&spi_pru);
+    cdev_del(&spi_pwru);
     unregister_chrdev_region(device1, 1);
     void release_mem_region(0x4a310000 0x3000, 8);
     iounmap(Data_pointer);
