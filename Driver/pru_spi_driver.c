@@ -12,6 +12,7 @@
 #include <asm/io.h>
 #include <stdint.h>
 uint8_t *mosi;
+uint8_t *miso;
 static void * Data_pointer; 
 //struct dev_t stores the major and minor numbers
 static dev_t device1;              
@@ -49,15 +50,15 @@ void allocate_mem_ioremap()
 static ssize_t spi_write(struct file *filp, const char __user *buf, size_t count,loff_t *f_pos)
 {
 	copy_from_user(mosi,buf,count);
-	uint8_t mosi_transfer_write=*mosi;
-	iowrite8(mosi_transfer_write,Data_pointer);
+	uint8_t mosi_transfer=*mosi;
+	iowrite8(mosi_transfer,Data_pointer);
 }
 static ssize_t spi_read(struct file *filp, const char __user *buf, size_t count,loff_t *f_pos)
 {
-	uint8_t mosi_transfer_read=ioread8(Data_pointer);
-	*mosi=mosi_transfer_read;
-	int len =sizeof(mosi_transfer_read);
-	copy_to_user(buf,mosi,len);
+	uint8_t miso_transfer=ioread8(Data_pointer);
+	*miso=miso_transfer;
+	int len =sizeof(miso_transfer);
+	copy_to_user(buf,miso,len);
 }
 static int __init spi_init(void)
 {
@@ -93,6 +94,8 @@ static void __exit spi_exit(void)
     void release_mem_region(0x4a310000 0x3000, 8);
     iounmap(Data_pointer);
     Data_pointer=NULL;
+    mosi=NULL;
+    miso=NULL;
 }
  
 module_init(spi_init);
