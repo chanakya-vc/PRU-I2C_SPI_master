@@ -7,10 +7,11 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/device.h>
+#include <linux/slab.h>
 #include <asm/uaccess.h>
 #include <linux/ioport.h>
 #include <asm/io.h>
-#include <stdint.h>
+
 uint8_t *mosi;
 uint8_t *miso;
 static void * Data_pointer; 
@@ -20,15 +21,6 @@ static dev_t device1;
 static struct cdev spi_pru;    
 //udev daemon uses this to create device files
 static struct class *cl; 		   
-//fileoperations structure defines the char driver's method
-static struct file_operations file_ops =			
-{
-    .owner = THIS_MODULE,
-    .open = openchardevice,
-    .release = closechardevice,
-    .read=spi_read,
-    .write=spi_write,
-};
 static int openchardevice(struct inode *i, struct file *f) 	
 {
     printk(KERN_INFO "Device has succesfully been opened\n");
@@ -39,13 +31,13 @@ static int closechardevice(struct inode *i, struct file *f)
     printk(KERN_INFO "Device has successfully been closed\n");
     return 0;
 }
-void allocate_mem_ioremap()
+void allocate_mem_ioremap(void)
 {	//Allocate memory for I/O.
 	struct resource *request_mem_region(0x4a310000 0x3000, 8,"Data");
 	//Ioremap returns a virtual address in Data_pointer.
 	Data_pointer=ioremap(0x4a310000 0x3000, 0X8);
 	//Allocate memeory to *mosi
-	mosi=kmalloc(sizeof(uint8_t ));
+	mosi=kmalloc(sizeof(uint8_t), GFP_KERNEL);
 }
 static ssize_t spi_write(struct file *filp, const char __user *buf, size_t count,loff_t *f_pos)
 {
@@ -60,6 +52,17 @@ static ssize_t spi_read(struct file *filp, const char __user *buf, size_t count,
 	int len =sizeof(miso_transfer);
 	copy_to_user(buf,miso,len);
 }
+
+//fileoperations structure defines the char driver's method
+static struct file_operations file_ops =			
+{
+    .owner = THIS_MODULE,
+    .open = openchardevice,
+    .release = closechardevice,
+    .read=spi_read,
+    .write=spi_write,
+};
+
 static int __init spi_init(void)
 {
 	struct device *dev_ret;
@@ -89,7 +92,7 @@ static void __exit spi_exit(void)
 {
     device_destroy(cl, device1);
     class_destroy(cl);
-    cdev_del(&spi_pwru);
+    cdev_del(&spi_pru);
     unregister_chrdev_region(device1, 1);
     void release_mem_region(0x4a310000 0x3000, 8);
     iounmap(Data_pointer);

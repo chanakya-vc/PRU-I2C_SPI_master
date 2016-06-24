@@ -1,0 +1,8 @@
+To compile this kernel module, first you must have the kernel sources you want
+to build against setup correctly.  Please see the Linux kernel documentation
+within the Linux source directory Documentation/kbuild/ for more information.
+
+Then, to build this kernel module, simply execute (but replace the path with
+your path to your correctly setup Linux kernel source code):
+
+make -C <path/to/linux/kernel/sources> M=$PWD
