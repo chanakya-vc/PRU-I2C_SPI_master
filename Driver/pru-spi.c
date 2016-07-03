@@ -11,7 +11,6 @@
 #include <asm/uaccess.h>
 #include <linux/ioport.h>
 #include <asm/io.h>
-
 uint8_t *mosi;
 uint8_t *miso;
 static void * Data_pointer; 
@@ -31,14 +30,14 @@ static int closechardevice(struct inode *i, struct file *f)
     printk(KERN_INFO "Device has successfully been closed\n");
     return 0;
 }
-void allocate_mem_ioremap(void)
+/*void allocate_mem_ioremap(void)
 {	//Allocate memory for I/O.
 	struct resource *request_mem_region(0x4a310000 0x3000, 8,"Data");
 	//Ioremap returns a virtual address in Data_pointer.
 	Data_pointer=ioremap(0x4a310000 0x3000, 0X8);
 	//Allocate memeory to *mosi
 	mosi=kmalloc(sizeof(uint8_t), GFP_KERNEL);
-}
+}*/
 static ssize_t spi_write(struct file *filp, const char __user *buf, size_t count,loff_t *f_pos)
 {
 	copy_from_user(mosi,buf,count);
@@ -84,7 +83,13 @@ static int __init spi_init(void)
     cl = class_create(THIS_MODULE, "char1"); 
     //cl is populated for udev daemon to create the device file
     dev_ret = device_create(cl, NULL, device1, NULL, "spi_pru_device");
-    allocate_mem_ioremap();
+    //Allocate memory for I/O.
+	request_mem_region(0x4a310000, 8,"Data");
+	//Ioremap returns a virtual address in Data_pointer.
+	Data_pointer=ioremap(0x4a310000, 8);
+	//Allocate memeory to *mosi
+	mosi=kmalloc(sizeof(uint8_t), GFP_KERNEL);
+//   allocate_mem_ioremap();
 // 	write_to_mem_ioremap()
  	return 0;
 }
@@ -94,7 +99,7 @@ static void __exit spi_exit(void)
     class_destroy(cl);
     cdev_del(&spi_pru);
     unregister_chrdev_region(device1, 1);
-    void release_mem_region(0x4a310000 0x3000, 8);
+    release_mem_region(0x4a310000, 8);
     iounmap(Data_pointer);
     Data_pointer=NULL;
     mosi=NULL;
