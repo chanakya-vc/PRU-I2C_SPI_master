@@ -4,3 +4,9 @@
 *.s
 pru0_spi
 gen/*
+*.dwo
+*.ko
+*.mod.*
+Module.symvers
+.tmp_versions/
+modules.order
