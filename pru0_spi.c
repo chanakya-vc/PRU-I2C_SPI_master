@@ -16,7 +16,7 @@ uint8_t i=0;
  void main()
 {
 	//Declare a pointer to the mem location in the shared mem
-	//volatile uint8_t *mosi_transfer=0x00010000;
+	volatile uint8_t *mosi_transfer=(volatile uint8_t *)0x00010000;
 	//volatile uint8_t *miso_transfer;
 	volatile uint8_t mosi ,miso;
 	//Set the CFG Register to direct output
@@ -24,8 +24,7 @@ uint8_t i=0;
 	//clear the r30 register
 	__R30=0x0000;
 	//setmosi to test data
-	//mosi=*mosi_transfer;
-	mosi=0x06;
+	mosi=*mosi_transfer;
 	CPOL=0;
 	CPHA=0;
 	//set value of the clock_pol_pha variable between 0 and 3
@@ -35,8 +34,6 @@ uint8_t i=0;
 		//set the clock 1 to be in its idle state
 		__R30|=(1<<CLK);
 	}
-
-	for(int j=0;j<10;j++);
 	switch(clock_pol_pha){
 		case 0:	
 
