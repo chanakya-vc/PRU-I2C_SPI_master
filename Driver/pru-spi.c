@@ -43,14 +43,17 @@ static ssize_t spi_write(struct file *filp,const char __user *buf, size_t count,
 	copy_from_user(mosi,buf,count);
 	uint8_t mosi_transfer=*mosi;
 	iowrite8(mosi_transfer,Data_pointer);
+    int len =sizeof(mosi_transfer);
+    return len;
 }
 
 static ssize_t spi_read(struct file *filp, char __user *buf, size_t count,loff_t *f_pos)
 {
 	uint8_t miso_transfer=ioread8(Data_pointer);
-	*miso=miso_transfer;
+	//*miso=miso_transfer;
 	int len =sizeof(miso_transfer);
-	copy_to_user(buf,miso,len);
+	copy_to_user(buf,&miso_transfer,len);
+    return len;
 }
 
 //fileoperations structure defines the char driver's method
