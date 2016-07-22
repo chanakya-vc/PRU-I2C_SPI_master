@@ -8,9 +8,9 @@
 #include <linux/cdev.h>
 #include <linux/device.h>
 #include <linux/slab.h>
-#include <asm/uaccess.h>
-#include <linux/ioport.h>
-#include <asm/io.h>
+#include <asm/uaccess.h> //for copy_to_user and related functions
+#include <linux/ioport.h> //for allocating memory
+#include <asm/io.h> //for ioremap
 uint8_t *mosi;
 uint8_t *miso;
 static void * Data_pointer; 
