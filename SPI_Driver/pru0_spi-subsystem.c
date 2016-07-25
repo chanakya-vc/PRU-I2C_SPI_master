@@ -77,6 +77,7 @@ static int pru0_spi_probe(struct platform_device *pdev)
  	printk(KERN_INFO "Master Registration Failed");
  }
  }
+EXPORT_SYMBOL_GPL(pru0_spi_probe);
 //struct to register with the platform bus
 static struct platform_driver pru0_spi_driver={
 .probe=pru0_spi_probe ,
