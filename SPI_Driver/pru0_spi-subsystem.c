@@ -36,7 +36,7 @@ request_mem_region(0x4a310000, 8,"Data");
 static void * Data_pointer_mosi; 
 static void * Data_pointer_miso; 
 Data_pointer_mosi=ioremap(0x4a310000, 8);
-Data_pointer_miso=ioremap(0x4a310000+9, 8);
+Dat a_pointer_miso=ioremap(0x4a310000+9, 8);
 };
 static int pru0_spi_transfer_one(struct spi_master *master,struct spi_device *spi, struct spi_transfer *t)
 {
@@ -56,6 +56,7 @@ static int pru0_spi_transfer_one(struct spi_master *master,struct spi_device *sp
 		*rx_buf=ioread8(miso);
 	}
 }
+
 static int pru0_spi_probe(struct platform_device *pdev)
  {
  	struct spi_master *master;
@@ -67,9 +68,14 @@ static int pru0_spi_probe(struct platform_device *pdev)
  		return -ENODEV;
  	}
  master->mode_bits = SPI_CPOL|SPI_CPHA|SPI_CS_HIGH;
- master->prepare_message=pru0_spi_prepare_message;
+ //master->prepare_message=pru0_spi_prepare_message;
  master->transfer_one = pru0_spi_transfer_one;
 
+ int status= devm_spi_register_master(&pdev->dev, master);
+ if(status <0)
+ {
+ 	printk(KERN_INFO "Master Registration Failed");
+ }
  }
 //struct to register with the platform bus
 static struct platform_driver pru0_spi_driver={
