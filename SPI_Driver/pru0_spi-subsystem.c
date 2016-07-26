@@ -35,8 +35,12 @@ struct spi_master *master;
 request_mem_region(0x4a310000, 8,"Data");
 static void * Data_pointer_mosi; 
 static void * Data_pointer_miso; 
+static void * flag_mosi;
+static void * flag_miso;  
 Data_pointer_mosi=ioremap(0x4a310000, 8);
-Dat a_pointer_miso=ioremap(0x4a310000+9, 8);
+Data_pointer_miso=ioremap(0x4a310000+9, 8);
+flag_mosi=ioremap(0x4a310000+18, 8);
+flag_miso=ioremap(0x4a310000+27, 8);
 };
 static int pru0_spi_transfer_one(struct spi_master *master,struct spi_device *spi, struct spi_transfer *t)
 {
@@ -49,9 +53,10 @@ static int pru0_spi_transfer_one(struct spi_master *master,struct spi_device *sp
 	static void *miso=pru0 -> Data_pointer_miso;
 	if(tx_buf!=NULL)
 	{
-		iowrite8(mosi_transfer,mosi); 
+		iowrite8(mosi_transfer,mosi);
+		iowritw 
 	}
-	if(miso!=NULL)
+	if(miso!=NULL &&)
 	{
 		*rx_buf=ioread8(miso);
 	}
