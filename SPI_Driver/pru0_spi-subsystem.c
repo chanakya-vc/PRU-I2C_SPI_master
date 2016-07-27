@@ -32,22 +32,18 @@
 
 struct pru0_spi={
 struct spi_master *master;
-request_mem_region(0x4a310000, 8,"Data");
+
 static void * Data_pointer_mosi; 
 static void * Data_pointer_miso; 
 static void * flag_mosi;
 static void * flag_miso;  
-Data_pointer_mosi=ioremap(0x4a310000, 8);
-Data_pointer_miso=ioremap(0x4a310000+8, 8);
-flag_mosi=ioremap(0x4a310000+16, 8);
-flag_miso=ioremap(0x4a310000+24, 8);
+static void *spi_cs;
+static void *spi_lsb_first;
+static void *spi_cpol;
+static void *spi_cpha;
 };
 static int pru0_spi_setup(struct spi_device *spi)
 {
-	static void *spi_cs= ioremap(0x4a310000+32, 8);
-	static void *spi_lsb_first= ioremap(0x4a310000+40, 8);
-	static void *spi_cpol= ioremap(0x4a310000+48, 8);
-	static void *spi_cpha= ioremap(0x4a310000+48, 8);
 	uint8_t spi_cs_val;
 	uint8_t spi_lsb_first_val;
 	uint8_t spi_cpol_val;
@@ -55,50 +51,49 @@ static int pru0_spi_setup(struct spi_device *spi)
 	if(!(spi->mode & SPI_CS_HIGH))
 	{
 		spi_cs_val=0;
-		iowrite8(spi_cs_val,spi_cs); //normal cs ,i.e low on active
+		iowrite8(spi_cs_val,pru0->spi_cs); //normal cs ,i.e low on active
 	}
 	else
 	{
 		spi_cs_val=0x1;
-		iowrite8(spi_cs_val,spi_cs);
+		iowrite8(spi_cs_val,pru0->spi_cs);
 	}
 
 	if(spi_>mode & SPI_LSB_FIRST)
 	{
 		spi_lsb_first_val=1;
-		iowrite8(spi_lsb_first_val,spi_lsb_first); //lsb first tranfer will take place
+		iowrite8(spi_lsb_first_val,pru0->spi_lsb_first); //lsb first tranfer will take place
 	}
 	else
 	{
 		spi_lsb_first_val=0;
-		iowrite8(spi_lsb_first_val,spi_lsb_first); //msb first tranfer will take place
+		iowrite8(spi_lsb_first_val,pru0->spi_lsb_first); //msb first tranfer will take place
 	}
 	if(spi->mode & SPI_CPOL)
 	{
 		spi_cpol_val=0x1;
-		iowrite8(spi_cpol_val,spi_cpol);
+		iowrite8(spi_cpol_val,pru0->spi_cpol);
 	}
 	else
 	{
 		spi_cpol_val=0;
-		iowrite8(spi_cpol_val,spi_cpol);	
+		iowrite8(spi_cpol_val,pru0->spi_cpol);	
 	}
 	if(spi->mode & SPI_CPHA)
 	{
 		spi_cpha_val=0x1;
-		iowrite8(spi_cpha_val,spi_cpha);
+		iowrite8(spi_cpha_val,pru0->spi_cpha);
 	}
 	else
 	{
 		spi_cpha_val=0;
-		iowrite8(spi_cpha_val,spi_cpha);	
+		iowrite8(spi_cpha_val,pru0->spi_cpha);	
 	}
 
 }	
 static int pru0_spi_transfer_one(struct spi_master *master,struct spi_device *spi, struct spi_transfer *t)
 {
-	struct pru0_spi *pru0 ;
-	const void      *tx_buf = t->tx_buf ;        
+    const void      *tx_buf = t->tx_buf ;        
 	void            *rx_buf = t->rx_buf;
 	pru0=spi_master_get_devdata(master);
 	uint8_t mosi_transfer=*tx_buf;
@@ -130,7 +125,15 @@ static int pru0_spi_probe(struct platform_device *pdev)
  master->mode_bits = SPI_CPOL|SPI_CPHA|SPI_CS_HIGH|SPI_LSB_FIRST; //MODE BITS understood by this driver
  master->setup=pru0_spi_setup;
  master->transfer_one = pru0_spi_transfer_one;
-
+ request_mem_region(0x4a310000, 56,"Data");
+ pru0->Data_pointer_mosi=ioremap(0x4a310000, 8);
+ pru0->Data_pointer_miso=ioremap(0x4a310000+8, 8);
+ pru0->flag_mosi=ioremap(0x4a310000+16, 8);
+ pru0->flag_miso=ioremap(0x4a310000+24, 8);
+ pru0->spi_cs= ioremap(0x4a310000+32, 8);
+ pru0->spi_lsb_first= ioremap(0x4a310000+40, 8);
+ pru0->spi_cpol= ioremap(0x4a310000+48, 8);
+ pru0->spi_cpha= ioremap(0x4a310000+56, 8);
  int status= devm_spi_register_master(&pdev->dev, master);
  if(status <0)
  {
