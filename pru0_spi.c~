@@ -40,7 +40,8 @@ void main()
 	volatile uint8_t *mosi_flag = (volatile uint8_t *)(0x00010000 + 16);
 	volatile uint8_t *miso_flag = (volatile uint8_t *)(0x00010000 + 24);
 	volatile uint8_t *set_cs = (volatile uint8_t *)(0x00010000 + 32);
-	volatile uint8_t *set_lsb_tranfer = (volatile uint8_t *)(0x00010000 + 40);
+	volatile uint8_t *set_lsb_tranfer =
+	    (volatile uint8_t *)(0x00010000 + 40);
 	volatile uint8_t *set_cpol = (volatile uint8_t *)(0x00010000 + 48);
 	volatile uint8_t *set_cpha = (volatile uint8_t *)(0x00010000 + 56);
 	// Assign Dummy value to set_cpol and set_cpha to determine when the user has written the CPOL and CPHA values
