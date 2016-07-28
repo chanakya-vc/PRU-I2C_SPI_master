@@ -112,6 +112,29 @@ static int pru0_spi_transfer_one(struct spi_master *master,struct spi_device *sp
 	}
 }
 
+static int pru0_spi_remove(struct platform_device *pdev)
+{
+	struct spi_master *master= 	platform_get_drvdata(pdev);
+	struct pru0_spi=spi_master_get_devdata(master);
+	release_mem_region(0x4a310000, 56);
+	iounmap(pru0->Data_pointer_mosi);
+	iounmap(pru0->Data_pointer_miso);
+	iounmap(pru0->flag_mosi);
+	iounmap(pru0->flag_miso);
+	iounmap(pru0->spi_cs);
+	iounmap(pru0->spi_lsb_first);
+	iounmap(pru0->spi_cpol);
+	iounmap(pru0->spi_cpha);
+	pru0->Data_pointer_mosi=NULL;
+	pru0->Data_pointer_miso=NULL;
+	pru0->flag_mosi=NULL;
+	pru0->flag_miso=NULL;
+	pru0->spi_cs=NULL;
+	pru0->spi_lsb_first=NULL;
+	pru0->spi_cpol=NULL;
+	pru0->spi_cpha=NULL;
+
+}
 static int pru0_spi_probe(struct platform_device *pdev)
  {
  	struct spi_master *master;
