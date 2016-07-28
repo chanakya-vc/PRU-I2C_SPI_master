@@ -45,9 +45,9 @@ void main()
 	volatile uint8_t *set_cpha = (volatile uint8_t *)(0x00010000 + 56);
 	// Assign Dummy value to set_cpol and set_cpha to determine when the user has written the CPOL and CPHA values
 	*set_cpol = 4;
-	*set_cpha = 4
+	*set_cpha = 4 ;
 	    //Set miso_flag to zero
-	    * miso_flag = 0;
+	*miso_flag = 0;
 	//Set mosi_flag to zero
 	*mosi_flag = 0;
 	//set default value for lsb_first transfer
@@ -72,7 +72,7 @@ void main()
 		//      Block until Driver has written the mosi value
 		while ((*mosi_flag == 0)) ;
 		mosi = *mosi_transfer;
-		if (*lsb_first) {
+		if (*set_lsb_tranfer) {
 			switch (clock_pol_pha) {
 			case 0:
 				// set CS low or High according to set_cs
@@ -86,7 +86,7 @@ void main()
 
 				for (i = 0; i < 8; i++) {
 					//Right shift LSB in miso
-					miso = miso >> i;
+					miso = miso >> 1;
 					//Write Data on MOSI pin with LSB being first transferred
 					if ((mosi << (7 - i)) & 0x80) {
 						__R30 |= (1 << MOSI);
@@ -96,19 +96,16 @@ void main()
 
 					//set clk 1
 					__R30 |= (1 << CLK);
-
-					//set clk 0
-					__R30 &= ~(1 << CLK);
-
+                    
 					if (__R31 & 0x20) {
 						miso |= 0x80;
 
-					} else {
+					} 
+					//set clk 0
+					__R30 &= ~(1 << CLK);
 
-						miso & = ~(1 << 7);
+					
 					}
-
-				}
 				break;
 			case 1:
 				// set CS low or High according to set_cs
@@ -121,7 +118,7 @@ void main()
 				}
 				for (i = 0; i < 8; i++) {
 					//Right shift LSB in miso
-					miso = miso >> i;
+					miso = miso >> 1;
 					//Write Data on MOSI pin with LSB being first transferred
 					if ((mosi << (7 - i)) & 0x80) {
 						__R30 |= (1 << MOSI);
@@ -137,9 +134,6 @@ void main()
 					if (__R31 & 0x20) {
 						miso |= 0x80;
 
-					} else {
-
-						miso & = ~(1 << 7);
 					}
 				}
 				break;
@@ -155,7 +149,7 @@ void main()
 				}
 				for (i = 0; i < 8; i++) {
 					//Right shift LSB in miso
-					miso = miso >> i;
+					miso = miso >> 1;
 					//Write Data on MOSI pin with LSB being first transferred
 					if ((mosi << (7 - i)) & 0x80) {
 						__R30 |= (1 << MOSI);
@@ -165,16 +159,12 @@ void main()
 
 					//set clk 0 to set it in active state
 					__R30 &= ~(1 << CLK);
-					//set clk 1 to idle state
-					__R30 |= (1 << CLK);
-
 					if (__R31 & 0x20) {
 						miso |= 0x80;
 
-					} else {
-
-						miso & = ~(1 << 7);
 					}
+					//set clk 1 to idle state
+					__R30 |= (1 << CLK);
 				}
 				break;
 			case 3:
@@ -188,7 +178,7 @@ void main()
 				}
 				for (i = 0; i < 8; i++) {
 					//Right shift LSB in miso
-					miso = miso >> i;
+					miso = miso >> 1;
 					//Write Data on MOSI pin with LSB being first transferred
 					if ((mosi << (7 - i)) & 0x80) {
 						__R30 |= (1 << MOSI);
@@ -202,9 +192,6 @@ void main()
 					if (__R31 & 0x20) {
 						miso |= 0x80;
 
-					} else {
-
-						miso & = ~(1 << 7);
 					}
 
 				}
@@ -229,7 +216,7 @@ void main()
 
 				for (i = 0; i < 8; i++) {
 					//Left shift LSB in miso
-					miso = miso << i;
+					miso = miso << 1;
 					//Write Data on MOSI pin with MSB being first transferred
 					if ((mosi << i) & 0x80) {
 						__R30 |= (1 << MOSI);
@@ -240,16 +227,13 @@ void main()
 					//set clk 1
 					__R30 |= (1 << CLK);
 
-					//set clk 0
-					__R30 &= ~(1 << CLK);
-
 					if (__R31 & 0x20) {
 						miso |= 0x1;
 
-					} else {
-
-						miso & = ~(1 >> 7);
 					}
+					//set clk 0
+					__R30 &= ~(1 << CLK);
+
 
 				}
 				break;
@@ -264,7 +248,7 @@ void main()
 				}
 				for (i = 0; i < 8; i++) {
 					//Left shift LSB in miso
-					miso = miso << i;
+					miso = miso << 1;
 					//Write Data on MOSI pin with MSB being first transferred
 					if ((mosi << i) & 0x80) {
 						__R30 |= (1 << MOSI);
@@ -280,9 +264,6 @@ void main()
 					if (__R31 & 0x20) {
 						miso |= 0x1;
 
-					} else {
-
-						miso & = ~(1 >> 7);
 					}
 				}
 				break;
@@ -298,7 +279,7 @@ void main()
 				}
 				for (i = 0; i < 8; i++) {
 					// Left shift LSB in miso
-					miso = miso << i;
+					miso = miso << 1;
 					//Write Data on MOSI pin with MSB being first transferred
 					if ((mosi << i) & 0x80) {
 						__R30 |= (1 << MOSI);
@@ -308,16 +289,12 @@ void main()
 
 					//set clk 0 to set it in active state
 					__R30 &= ~(1 << CLK);
+					
+    				
 					//set clk 1 to idle state
 					__R30 |= (1 << CLK);
 
-					if (__R31 & 0x20) {
-						miso |= 0x1;
-
-					} else {
-
-						miso & = ~(1 >> 7);
-					}
+					
 				}
 				break;
 			case 3:
@@ -331,7 +308,7 @@ void main()
 				}
 				for (i = 0; i < 8; i++) {
 					//Left shift MSB in miso
-					miso = miso << i;
+					miso = miso << 1;
 					//Write Data on MOSI pin with MSB being first transferred
 					if ((mosi << i) & 0x80) {
 						__R30 |= (1 << MOSI);
@@ -346,9 +323,6 @@ void main()
 					if (__R31 & 0x20) {
 						miso |= 0x1;
 
-					} else {
-
-						miso & = ~(1 >> 7);
 					}
 
 				}
@@ -363,7 +337,9 @@ void main()
 
 		*miso_transfer = 1;
 		*mosi_transfer = 0;
+		__R31=0x0;
 	}
 
+	
 	__halt();
 }
