@@ -334,10 +334,9 @@ void main()
 			}
 
 		}
-
-		*miso_transfer = 1;
-		*mosi_transfer = 0;
 		__R31=0x0;
+		*miso_flag=1;
+		*mosi_flag=0;
 	}
 
 	
