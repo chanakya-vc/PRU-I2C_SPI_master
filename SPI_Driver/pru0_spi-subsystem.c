@@ -101,6 +101,7 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 		iowrite8(mosi_transfer, mosi);
 		iowrite8(mosi_flag_val, mosi_flag);	//set value for the flag to 1 
 	}
+	while(!(*miso_flag));
 	if (miso != NULL) {
 		*rx_buf = ioread8(miso);
 	}
