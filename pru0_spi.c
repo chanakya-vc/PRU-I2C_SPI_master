@@ -1,7 +1,7 @@
 /*
  *Written by Vaibhav Choudhary under GSOC-2016 for BeagleBoard.org
  *Copyright (C) 2016 Vaibhav Choudhary -www.vaibhavchoudhary.com
- *
+ *PRU-SPI FIRMWARE
  *This code may be copied and/or modified freely according to GNU General Public  
  *License version 2 as published by the Free Software Foundation, provided   
  *the following conditions are also met:
