@@ -96,6 +96,7 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 	void *mosi = pru0->Data_pointer_mosi;
 	void *miso = pru0->Data_pointer_miso;
 	void *mosi_flag = pru0->flag_mosi;
+	void *miso_flag = pru0->flag_miso;
 
 	if (tx_buf != NULL) {
 		iowrite8(mosi_transfer, mosi);
