@@ -37,7 +37,7 @@ struct pru0_spi {
 	void *Data_pointer_mosi;
 	void *Data_pointer_miso;
 	void *flag_mosi;
-	void *flag_miso;
+	uint8_t *flag_miso;
 	void *spi_cs;
 	void *spi_lsb_first;
 	void *spi_cpol;
@@ -96,7 +96,7 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 	void *mosi = pru0->Data_pointer_mosi;
 	void *miso = pru0->Data_pointer_miso;
 	void *mosi_flag = pru0->flag_mosi;
-	void *miso_flag = pru0->flag_miso;
+	uint8_t *miso_flag = pru0->flag_miso;
 
 	if (tx_buf != NULL) {
 		iowrite8(mosi_transfer, mosi);
