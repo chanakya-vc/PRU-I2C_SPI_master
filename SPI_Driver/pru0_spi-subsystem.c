@@ -93,6 +93,7 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 	struct pru0_spi *pru0 = spi_master_get_devdata(master);
 	uint8_t mosi_transfer = *tx_buf;
 	uint8_t mosi_flag_val = 0x1;
+	uint8_t miso_flag_val = 0x0;
 	void *mosi = pru0->Data_pointer_mosi;
 	void *miso = pru0->Data_pointer_miso;
 	void *mosi_flag = pru0->flag_mosi;
@@ -105,6 +106,7 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 	while(!(*miso_flag));
 	if (miso != NULL) {
 		*rx_buf = ioread8(miso);
+		 iowrite8(miso_flag_val, miso_flag);	//set value for the flag back to 0 
 	}
 
 	return 0;
