@@ -53,7 +53,7 @@ void main()
 	//set default value for lsb_first transfer
 	*set_lsb_tranfer = 1;
 	volatile uint8_t mosi;
-	volatile uint8_t miso = 0x0;
+	volatile uint8_t miso;
 	//Set the CFG Register to direct output instead of serial output
 	CT_CFG.GPCFG0 = 0;
 	//clear the r30 register
@@ -69,6 +69,7 @@ void main()
 			//set the clock 1 to be in its idle state
 			__R30 |= (1 << CLK);
 		}
+		miso=0x0;
 		//      Block until Driver has written the mosi value
 		while ((*mosi_flag == 0)) ;
 		mosi = *mosi_transfer;
