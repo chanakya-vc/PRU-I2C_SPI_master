@@ -23,10 +23,10 @@
 
 #include <linux/kernel.h>
 #include <linux/module.h>
-#include <asm/io.h>			//for ioremap
+#include <asm/io.h>		//for ioremap
 #include <linux/ioport.h>
-#include <linux/slab.h>			//for allocating memory
-#include <linux/spi/spi.h>		//defines all the structures used by the spi-subsytem
+#include <linux/slab.h>		//for allocating memory
+#include <linux/spi/spi.h>	//defines all the structures used by the spi-subsytem
 #include <linux/platform_device.h>	//Defines structure for using the platform-bus
 #include <linux/err.h>
 
@@ -54,39 +54,39 @@ static int pru0_spi_setup(struct spi_device *spi)
 
 	if (!(spi->mode & SPI_CS_HIGH)) {
 		spi_cs_val = 0;
-		iowrite8(spi_cs_val, pru0->spi_cs);	//normal cs ,i.e low on active
 	} else {
 		spi_cs_val = 0x1;
-		iowrite8(spi_cs_val, pru0->spi_cs);
 	}
+	iowrite8(spi_cs_val, pru0->spi_cs);
 
 	if (spi->mode & SPI_LSB_FIRST) {
 		spi_lsb_first_val = 1;
-		iowrite8(spi_lsb_first_val, pru0->spi_lsb_first);	//lsb first tranfer will take place
 	} else {
 		spi_lsb_first_val = 0;
-		iowrite8(spi_lsb_first_val, pru0->spi_lsb_first);	//msb first tranfer will take place
 	}
+	iowrite8(spi_lsb_first_val, pru0->spi_lsb_first);
+
 	if (spi->mode & SPI_CPOL) {
 		spi_cpol_val = 0x1;
-		iowrite8(spi_cpol_val, pru0->spi_cpol);
 	} else {
 		spi_cpol_val = 0;
-		iowrite8(spi_cpol_val, pru0->spi_cpol);
 	}
+	iowrite8(spi_cpol_val, pru0->spi_cpol);
 	if (spi->mode & SPI_CPHA) {
 		spi_cpha_val = 0x1;
-		iowrite8(spi_cpha_val, pru0->spi_cpha);
 	} else {
 		spi_cpha_val = 0;
-		iowrite8(spi_cpha_val, pru0->spi_cpha);
 	}
+	iowrite8(spi_cpha_val, pru0->spi_cpha);
+
+	pr_info("pru0_spi_setup: cs_high = %d lsb_first = %d cpol = %d cpha = %d\n",
+		spi_cs_val, spi_lsb_first_val, spi_cpol_val, spi_cpha_val);
 
 	return 0;
 }
 
 static int pru0_spi_transfer_one(struct spi_master *master,
-				 struct spi_device *spi, struct spi_transfer *t)
+		struct spi_device *spi, struct spi_transfer *t)
 {
 	const uint8_t *tx_buf = t->tx_buf;
 	uint8_t *rx_buf = t->rx_buf;
@@ -98,14 +98,17 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 	void *miso = pru0->Data_pointer_miso;
 	void *mosi_flag = pru0->flag_mosi;
 	void *miso_flag = pru0->flag_miso;
+
 	if (tx_buf != NULL) {
 		iowrite8(mosi_transfer, mosi);
 		iowrite8(mosi_flag_val, mosi_flag);	//set value for the flag to 1 
 	}
-	while(!(ioread8(miso_flag)));
+
+	while (!(ioread8(miso_flag))) ;
+
 	if (miso != NULL) {
 		*rx_buf = ioread8(miso);
-		 iowrite8(miso_flag_val, miso_flag);	//set value for the flag back to 0 
+		iowrite8(miso_flag_val, miso_flag);	//set value for the flag back to 0
 	}
 
 	return 0;
@@ -117,8 +120,8 @@ static int pru0_spi_remove(struct platform_device *pdev)
 	struct pru0_spi *pru0 = spi_master_get_devdata(master);
 
 	pr_info("pru0_spi_remove called\n");
+
 	release_mem_region(0x4a310000, 56);
-	pr_info("pru0_spi_remove called\n");
 
 	iounmap(pru0->Data_pointer_mosi);
 	iounmap(pru0->Data_pointer_miso);
@@ -129,7 +132,6 @@ static int pru0_spi_remove(struct platform_device *pdev)
 	iounmap(pru0->spi_cpol);
 	iounmap(pru0->spi_cpha);
 
-	pr_info("pru0_spi_remove called\n");
 	return 0;
 }
 
