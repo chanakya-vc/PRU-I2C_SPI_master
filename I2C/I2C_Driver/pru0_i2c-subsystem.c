@@ -41,7 +41,7 @@ void *sda_flag_read;
 void *read_or_write;
 void *stop_bit;
 };
-static int pru0_i2c_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,int stop)
+static int pru0_i2c_xfer_one_message(struct i2c_adapter *adapter, struct i2c_msg *msgs,int stop)
 {
 	struct pru0_i2c *pru0= i2c_get_adapdata(adapter);
 	int flags;
