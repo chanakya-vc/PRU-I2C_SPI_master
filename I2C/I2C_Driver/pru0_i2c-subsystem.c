@@ -39,6 +39,64 @@ void *sda;
 void *sda_flag_write;
 void *sda_flag_read;
 void *read_or_write;
+void *stop_bit;
+};
+static int pru0_i2c_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,int stop)
+{
+	struct pru0_i2c *pru0= i2c_get_adapdata(adapter);
+	int flags;
+	uint8_t sda_transfer = msg->buf;
+	uint8_t slave_address_value = msg->addr;
+	uint8_t read_or_write_value= msg->flags ;
+	uint8_t sda_flag_write_val=1;
+	uint8_t sda_flag_read_val=0;
+	uint8_t stop_bit_val=1;
+	void *address =pru0->slave_address;
+	void *sda= pru0->sda;
+	void *read_or_write=pru0->read_or_write;
+	void *sda_write_flag =pru0->sda_flag_write;
+	void *sda_read_flag =pru0->sda_flag_read;
+	void *stop_bit_flag=pru0->stop_bit;
+	if(msg->addr!=NULL)
+	{
+		iowrite8(slave_address_value,address);
+	}
+	if(msg->len!=0 && (read_or_write_value!=1))
+	{
+		iowrite8(sda_transfer,sda);
+		iowrite8(read_or_write_value,read_or_write);
+		iowrite8(sda_flag_write_val,sda_write_flag);
+	}
+	else if(msg->len!=0 && read_or_write_value)
+	{
+		iowrite8(read_or_write_value,read_or_write);
+		while(!(ioread8(sda_read_flag)));
+		ioread8(sda);
+		msg->buf=sda;
+			
+	}
+	if(stop && (read_or_write_value!=1))
+	{
+		iowrite8(stop_bit_val,stop_bit_flag);
+	}
+	return 0;
+}
+static int pru0_i2c_xfer(struct i2c_adapter *adapter, struct i2c_msg msgs[],int num)
+{
+	int i;
+	int err;
+	for(i=0;i<num;i++)
+	{
+		err=pru0_i2c_xfer_one_message(adapter,&msgs[i],i==(num-1));
+		if(err)
+		{
+			return err;
+		}
+	}
+return i;
+}
+static const struct i2c_algorithm pru0_i2c_algo={
+	.master_xfer = pru0_i2c_xfer,
 };
 static int pru0_i2c_probe(struct platform_device *pdev)
 {
@@ -52,12 +110,13 @@ static int pru0_i2c_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 	
-	request_mem_region(0x4a310000, 40, "Data");
+	request_mem_region(0x4a310000, 48, "Data");
 	pru0->slave_address = ioremap(0x4a310000,8);
 	pru0->sda = ioremap(0x4a310000+8,8);
 	pru0->sda_flag_write = ioremap(0x4a310000 + 16,8);
 	pru0->sda_flag_read  = ioremap(0x4a310000 + 24,8);
 	pru0->read_or_write  = ioremap(0x4a310000 + 32,8);
+	pru0->stop_bit       = ioremap(0x4a310000 + 40,8);
 	platform_set_drvdata(pdev,pru0);
 	adapter=&pru0->adapter;
 	strlcpy(adapter->name, "PRU0-I2C", sizeof(adapter->name));
@@ -72,6 +131,21 @@ static int pru0_i2c_probe(struct platform_device *pdev)
     }
 
 return 0;
+}
+static int pru_i2c_remove(struct platform_device *pdev)
+{
+	struct pru0_i2c *pru0 = platform_get_drvdata(pdev);
+	i2c_del_adapter(&pru0->adapter);
+	pr_info("pru0_i2c_remove called\n");
+	release_mem_region(0x4a310000, 48);
+	iounmap(pru0->slave_address);
+	iounmap(pru0->sda);
+	iounmap(pru0->sda_flag_write);
+	iounmap(pru0->sda_flag_read);
+	iounmap(pru0->read_or_write);
+	iounmap(pru0->stop_bit);
+
+	return 0;
 }
 static struct platform_driver pru0_i2c_driver={
 	.probe=pru0_i2c_probe,
