@@ -147,6 +147,10 @@ static int pru_i2c_remove(struct platform_device *pdev)
 
 	return 0;
 }
+static const struct of_device_id pru0_i2c_ids[] = {
+	{.compatible = "beagle,pru0-i2c",.data = NULL},
+	{},
+};
 static struct platform_driver pru0_i2c_driver={
 	.probe=pru0_i2c_probe,
 	.remove=pru_i2c_remove,
