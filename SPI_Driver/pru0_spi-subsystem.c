@@ -162,7 +162,7 @@ static int pru0_spi_probe(struct platform_device *pdev)
 
 	pru0 = spi_master_get_devdata(master);
 
-	request_mem_region(0x4a310000, 64, "Data");
+	request_mem_region(0x4a310000, 56, "Data");
 	pru0->Data_pointer_mosi = ioremap(0x4a310000, 8);
 	pru0->Data_pointer_miso = ioremap(0x4a310000 + 8, 8);
 	pru0->flag_mosi = ioremap(0x4a310000 + 16, 8);
