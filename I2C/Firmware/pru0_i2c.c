@@ -22,3 +22,60 @@
   */
 #include <stdint.h>
 #include "resource_table_empty.h"
+#define SDA 15 //P8_11 
+#define SCL 14 //P8_12
+#define SDA_READ  5 //P9_27
+#define SCL_READ  3 //P9_28
+volatile register uint32_t __R30;  
+volatile register uint32_t __R31;
+void set_scl(void);
+{
+  __R30 & = ~(1 << SCL); //Apply zero voltage to the base so as to turn off the transistor
+}
+void set_sda(void)
+{
+  __R30 & = ~(1 << SDA); //Apply zero voltage to the base so as to turn off the transistor
+}
+void clear_sda(void)
+{
+  __R30 |= (1 << SDA); //Apply high voltage to the base so as to pull sda line low.
+}
+void clear_scl(void)
+{
+  __R30 |= (1 << SCL); //Apply high voltage to the base so as to pull scl line low.
+}
+int read_sda(uint8_t SDA)
+{
+  if(__R31 & (1 << SDA_READ ))
+  {
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }     
+}
+int read_scl(uint8_t SDA)
+{
+  if(__R31 & (1 << SCL_READ ))
+  {
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }     
+}
+
+void main()
+{
+
+  //Set the CFG Register to direct output instead of serial output
+  CT_CFG.GPCFG0 = 0;
+  //clear the R30 register
+  __R30=0x0000;
+
+  //clear the R31 register
+  __R31=0x0000;
+}
+
