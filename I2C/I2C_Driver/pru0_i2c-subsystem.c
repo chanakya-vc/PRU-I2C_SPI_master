@@ -33,7 +33,7 @@
 #define DRIVER_NAME "pru0_I2C_vc"
 
 struct pru0_i2c {
-struct i2c_adapter *adapter;
+struct i2c_adapter adapter;
 void *slave_address;
 void *sda;
 void *sda_flag_write;
@@ -41,11 +41,11 @@ void *sda_flag_read;
 void *read_or_write;
 void *stop_bit;
 };
-static int pru0_i2c_xfer_one_message(struct i2c_adapter *adapter, struct i2c_msg *msgs,int stop)
+static int pru0_i2c_xfer_one_message(struct i2c_adapter *adapter, struct i2c_msg *msg,int stop)
 {
 	struct pru0_i2c *pru0= i2c_get_adapdata(adapter);
-	int flags;
-	uint8_t sda_transfer = msg->buf;
+	//int flags;
+	uint8_t sda_transfer = *(msg->buf);
 	uint8_t slave_address_value = msg->addr;
 	uint8_t read_or_write_value= msg->flags ;
 	uint8_t sda_flag_write_val=1;
@@ -57,7 +57,7 @@ static int pru0_i2c_xfer_one_message(struct i2c_adapter *adapter, struct i2c_msg
 	void *sda_write_flag =pru0->sda_flag_write;
 	void *sda_read_flag =pru0->sda_flag_read;
 	void *stop_bit_flag=pru0->stop_bit;
-	if(msg->addr!=NULL)
+	if(msg->addr)
 	{
 		iowrite8(slave_address_value,address);
 	}
@@ -73,6 +73,7 @@ static int pru0_i2c_xfer_one_message(struct i2c_adapter *adapter, struct i2c_msg
 		while(!(ioread8(sda_read_flag)));
 		ioread8(sda);
 		msg->buf=sda;
+		iowrite8(sda_flag_read_val, sda_read_flag);
 			
 	}
 	if(stop && (read_or_write_value!=1))
@@ -95,8 +96,14 @@ static int pru0_i2c_xfer(struct i2c_adapter *adapter, struct i2c_msg msgs[],int 
 	}
 return i;
 }
+static u32 pru0_i2c_functionality(struct i2c_adapter *adap) //advertises functionality
+{
+	return I2C_FUNC_I2C;
+}
+
 static const struct i2c_algorithm pru0_i2c_algo={
 	.master_xfer = pru0_i2c_xfer,
+	.functionality=pru0_i2c_functionality,
 };
 static int pru0_i2c_probe(struct platform_device *pdev)
 {
@@ -118,15 +125,16 @@ static int pru0_i2c_probe(struct platform_device *pdev)
 	pru0->read_or_write  = ioremap(0x4a310000 + 32,8);
 	pru0->stop_bit       = ioremap(0x4a310000 + 40,8);
 	platform_set_drvdata(pdev,pru0);
-	adapter=&pru0->adapter;
+	adapter = &pru0->adapter;
 	strlcpy(adapter->name, "PRU0-I2C", sizeof(adapter->name));
 	adapter->owner = THIS_MODULE;
 	adapter->algo = &pru0_i2c_algo;
     adapter->dev.of_node = pdev->dev.of_node;
-    err=i2c_set_adapdata(adapter, pru0);
-    if(err)
+    i2c_set_adapdata(adapter, pru0);
+    err=i2c_add_adapter(adapter);
+    if(!(err))
     {
-    	pr_info("I2C data not set")
+    	pr_info("I2C data not set");
     	return err;
     }
 
@@ -159,8 +167,7 @@ static struct platform_driver pru0_i2c_driver={
 		.owner = THIS_MODULE,
 		.of_match_table = pru0_i2c_ids,
 	}
-}
-
+};
 module_platform_driver(pru0_i2c_driver);
 
 MODULE_LICENSE("GPL");

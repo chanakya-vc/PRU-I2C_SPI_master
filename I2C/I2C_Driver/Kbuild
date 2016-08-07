@@ -1,0 +1,1 @@
+obj-m += pru0_i2c-subsystem.o
