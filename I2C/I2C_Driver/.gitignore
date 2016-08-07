@@ -2,7 +2,7 @@
 *.obj
 *.pp
 *.s
-pru0_spi
+pru0_i2c
 gen/*
 src/*
 .tmp_versions /*
@@ -10,3 +10,5 @@ src/*
 *.cmd
 *.dwo
 *.c~
+*.o.cmd
+*.ko.cmd

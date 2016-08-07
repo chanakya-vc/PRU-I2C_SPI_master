@@ -85,9 +85,7 @@ static int pru0_i2c_xfer(struct i2c_adapter *adapter, struct i2c_msg msgs[],
 	int i;
 	int err;
 	for (i = 0; i < num; i++) {
-		err =
-		    pru0_i2c_xfer_one_message(adapter, &msgs[i],
-					      i == (num - 1));
+		err = pru0_i2c_xfer_one_message(adapter, &msgs[i],i == (num - 1));
 		if (err) {
 			return err;
 		}
