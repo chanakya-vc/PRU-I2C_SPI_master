@@ -47,8 +47,8 @@ static int pru0_i2c_xfer_one_message(struct i2c_adapter *adapter,
 	struct pru0_i2c *pru0 = i2c_get_adapdata(adapter);
 	//int flags;
 	uint8_t sda_transfer = *(msg->buf);
-	uint8_t slave_address_value = msg->addr;
-	uint8_t read_or_write_value = msg->flags;
+	uint16_t slave_address_value = msg->addr;
+	uint8_t read_or_write_value = msg->flags+1;
 	uint8_t sda_flag_write_val = 1;
 	uint8_t sda_flag_read_val = 0;
 	uint8_t stop_bit_val = 1;
@@ -59,21 +59,20 @@ static int pru0_i2c_xfer_one_message(struct i2c_adapter *adapter,
 	void *sda_read_flag = pru0->sda_flag_read;
 	void *stop_bit_flag = pru0->stop_bit;
 	if (msg->addr) {
-		iowrite8(slave_address_value, address);
+		iowrite16(slave_address_value, address);
+		iowrite8(read_or_write_value, read_or_write);
 	}
-	if (msg->len != 0 && (read_or_write_value != 1)) {
+	if (msg->len != 0 && (read_or_write_value == 1)) {
 		iowrite8(sda_transfer, sda);
-		iowrite8(read_or_write_value, read_or_write);
 		iowrite8(sda_flag_write_val, sda_write_flag);
-	} else if (msg->len != 0 && read_or_write_value) {
-		iowrite8(read_or_write_value, read_or_write);
+	} else if (msg->len != 0 && (read_or_write_value==2)) {
 		while (!(ioread8(sda_read_flag))) ;
 		ioread8(sda);
 		msg->buf = sda;
 		iowrite8(sda_flag_read_val, sda_read_flag);
 
 	}
-	if (stop && (read_or_write_value != 1)) {
+	if (stop && (read_or_write_value == 1)) {
 		iowrite8(stop_bit_val, stop_bit_flag);
 	}
 	return 0;
@@ -114,13 +113,13 @@ static int pru0_i2c_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 
-	request_mem_region(0x4a310000, 48, "Data");
-	pru0->slave_address = ioremap(0x4a310000, 8);
-	pru0->sda = ioremap(0x4a310000 + 8, 8);
-	pru0->sda_flag_write = ioremap(0x4a310000 + 16, 8);
-	pru0->sda_flag_read = ioremap(0x4a310000 + 24, 8);
-	pru0->read_or_write = ioremap(0x4a310000 + 32, 8);
-	pru0->stop_bit = ioremap(0x4a310000 + 40, 8);
+	request_mem_region(0x4a310000, 56, "Data");
+	pru0->slave_address = ioremap(0x4a310000, 16);
+	pru0->sda = ioremap(0x4a310000 + 16, 8);
+	pru0->sda_flag_write = ioremap(0x4a310000 + 24, 8);
+	pru0->sda_flag_read = ioremap(0x4a310000 + 32, 8);
+	pru0->read_or_write = ioremap(0x4a310000 + 40, 8);
+	pru0->stop_bit = ioremap(0x4a310000 + 48, 8);
 	platform_set_drvdata(pdev, pru0);
 	adapter = &pru0->adapter;
 	strlcpy(adapter->name, "PRU0-I2C", sizeof(adapter->name));
