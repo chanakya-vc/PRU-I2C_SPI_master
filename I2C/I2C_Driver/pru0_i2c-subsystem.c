@@ -35,7 +35,8 @@
 struct pru0_i2c {
 	struct i2c_adapter adapter;
 	void *slave_address;
-	void *sda;
+	void *sda_write;
+	void *sda_read;
 	void *sda_flag_write;
 	void *sda_flag_read;
 	void *read_or_write;
@@ -63,16 +64,17 @@ static int pru0_i2c_xfer_one_message(struct i2c_adapter *adapter,
 		iowrite8(read_or_write_value, read_or_write);
 	}
 	if (msg->len != 0 && (read_or_write_value == 1)) {
-		iowrite8(sda_transfer, sda);
+		iowrite8(sda_transfer, sda_write);
 		iowrite8(sda_flag_write_val, sda_write_flag);
+		//put a condition to this loop so that the next message transfer happens only after the PRU has bitbanged the data
 	} else if (msg->len != 0 && (read_or_write_value==2)) {
 		while (!(ioread8(sda_read_flag))) ;
-		ioread8(sda);
-		msg->buf = sda;
+		ioread8(sda_read);
+		msg->buf = sda_read;
 		iowrite8(sda_flag_read_val, sda_read_flag);
 
 	}
-	if (stop && (read_or_write_value == 1)) {
+	if (stop ) {
 		iowrite8(stop_bit_val, stop_bit_flag);
 	}
 	return 0;
@@ -113,13 +115,14 @@ static int pru0_i2c_probe(struct platform_device *pdev)
 		return -ENOMEM;
 	}
 
-	request_mem_region(0x4a310000, 56, "Data");
+	request_mem_region(0x4a310000, 64, "Data");
 	pru0->slave_address = ioremap(0x4a310000, 16);
-	pru0->sda = ioremap(0x4a310000 + 16, 8);
-	pru0->sda_flag_write = ioremap(0x4a310000 + 24, 8);
-	pru0->sda_flag_read = ioremap(0x4a310000 + 32, 8);
-	pru0->read_or_write = ioremap(0x4a310000 + 40, 8);
-	pru0->stop_bit = ioremap(0x4a310000 + 48, 8);
+	pru0->sda_write = ioremap(0x4a310000 + 16, 8);
+	pru0->sda_read = ioremap(0x4a310000 + 24, 8);
+	pru0->sda_flag_write = ioremap(0x4a310000 + 32, 8);
+	pru0->sda_flag_read = ioremap(0x4a310000 + 40, 8);
+	pru0->read_or_write = ioremap(0x4a310000 + 48, 8);
+	pru0->stop_bit = ioremap(0x4a310000 + 56, 8);
 	platform_set_drvdata(pdev, pru0);
 	adapter = &pru0->adapter;
 	strlcpy(adapter->name, "PRU0-I2C", sizeof(adapter->name));

@@ -29,11 +29,12 @@
 volatile register uint32_t __R30;  
 volatile register uint32_t __R31;
 volatile uint16_t *slave_address = (volatile uint16_t *)(0x00010000);
-volatile uint8_t *sda = (volatile uint8_t *)(0x00010000 +16);
-volatile uint8_t *sda_flag_write = (volatile uint8_t *)(0x00010000 +24);
-volatile uint8_t *sda_flag_read  = (volatile uint8_t *)(0x00010000 +32);
-volatile uint8_t *read_or_write  = (volatile uint8_t *)(0x00010000 +40);
-volatile uint8_t *stop_bit = (volatile uint8_t *)(0x00010000 +48);
+volatile uint8_t *sda_write = (volatile uint8_t *)(0x00010000 +16);
+volatile uint8_t *sda_read = (volatile uint8_t *)(0x00010000 +24);
+volatile uint8_t *sda_flag_write = (volatile uint8_t *)(0x00010000 +32);
+volatile uint8_t *sda_flag_read  = (volatile uint8_t *)(0x00010000 +40);
+volatile uint8_t *read_or_write  = (volatile uint8_t *)(0x00010000 +48);
+volatile uint8_t *stop_bit = (volatile uint8_t *)(0x00010000 +56);
 bool started= false;
 void set_scl(void);
 {
@@ -102,7 +103,6 @@ void I2C_delay(void)
 void bitbang_address(uint16_t address,uint8_t read_or_write)
 {
   
-  start_condition();
   for (int i =0;i<7;i++)
   {
     if((address<<i) && 0x40)
@@ -149,7 +149,7 @@ int write_byte()
 {
   int ack;
   start_condition();
-  uint8_t sda_val=*sda;
+  uint8_t sda_val=*sda_write;
   for(int i =0;i<8;i++)
   {
       if((sda << i) & 0x80)
@@ -157,7 +157,7 @@ int write_byte()
       else
         clear_sda();
       I2C_delay(); //Delay to match the propagation delay in sda
-      set_scl();
+      set_scl();  
       I2C_delay(); //Slave should read the value of changed sda
       while(read_scl()==0)
       {
@@ -172,9 +172,47 @@ int write_byte()
   else
     return 1;
 }
+bool read_i2c_bit(void)
+{
+  bool bit; 
+  set_sda();
+  set_scl(); //Ask the slave to write a new value
+  while(read_scl()==0)
+      {
+        //Clock stretching
+      }
+
+  I2C_delay();
+  bit=read_sda();
+  clear_scl();
+  return bit;
+}
+
 uint8_t read_byte()
 {
     uint8_t sda_dat=0;
+    for(int i=0;i<8;i++)
+    {
+      sda_dat = (sda_dat << 1);
+      sda_dat | = read_i2c_bit(); 
+    }
+    return sda_dat ;
+}
+
+//  A low to high transition on sda while clock is high is stop condition
+void I2C_stop_condition(void)
+{
+  clear_sda();
+  I2C_delay();
+  set_scl();
+  while(read_scl()==0)
+  {
+    //clock stretching
+  }
+  I2C_delay();
+  set_sda();
+  I2C_delay();
+  started=false;
 }
 void main()
 {
@@ -217,10 +255,23 @@ void main()
     else                //Master wants to read data
     {
 
-      
+      uint8_t sda_data= read_byte();
+      //send ack bit
+      clear_sda();
+      I2C_delay();
+      set_scl();
+      I2C_delay();
+      while(read_scl()==0)
+      {
+      //clock stretching
+      }
+      clear_scl();
+      *sda_read=sda_data;
+      sda_flag_read=1;
 
     }
   }
-
+  // Put stop bit after the transactions are complete
+  I2C_stop_condition();
   }
 }
