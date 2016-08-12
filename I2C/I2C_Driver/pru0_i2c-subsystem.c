@@ -54,7 +54,8 @@ static int pru0_i2c_xfer_one_message(struct i2c_adapter *adapter,
 	uint8_t sda_flag_read_val = 0;
 	uint8_t stop_bit_val = 1;
 	void *address = pru0->slave_address;
-	void *sda = pru0->sda;
+	void *sda_write = pru0->sda_write;
+	void *sda_read = pru0->sda_read;
 	void *read_or_write = pru0->read_or_write;
 	void *sda_write_flag = pru0->sda_flag_write;
 	void *sda_read_flag = pru0->sda_flag_read;
@@ -66,11 +67,11 @@ static int pru0_i2c_xfer_one_message(struct i2c_adapter *adapter,
 	if (msg->len != 0 && (read_or_write_value == 1)) {
 		iowrite8(sda_transfer, sda_write);
 		iowrite8(sda_flag_write_val, sda_write_flag);
-		//put a condition to this loop so that the next message transfer happens only after the PRU has bitbanged the data
+		//The next message transfer happens only after the PRU has bitbanged the data
+		while((ioread8(sda_write_flag)));
 	} else if (msg->len != 0 && (read_or_write_value==2)) {
 		while (!(ioread8(sda_read_flag))) ;
-		ioread8(sda_read);
-		msg->buf = sda_read;
+		*(msg->buf) = ioread8(sda_read);
 		iowrite8(sda_flag_read_val, sda_read_flag);
 
 	}
@@ -144,9 +145,10 @@ static int pru_i2c_remove(struct platform_device *pdev)
 	struct pru0_i2c *pru0 = platform_get_drvdata(pdev);
 	i2c_del_adapter(&pru0->adapter);
 	pr_info("pru0_i2c_remove called\n");
-	release_mem_region(0x4a310000, 48);
+	release_mem_region(0x4a310000, 56);
 	iounmap(pru0->slave_address);
-	iounmap(pru0->sda);
+	iounmap(pru0->sda_write);
+	iounmap(pru0->sda_read);
 	iounmap(pru0->sda_flag_write);
 	iounmap(pru0->sda_flag_read);
 	iounmap(pru0->read_or_write);

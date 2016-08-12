@@ -22,12 +22,14 @@
   */
 #include <stdint.h>
 #include "resource_table_empty.h"
+#include <pru_cfg.h>  
 #define SDA 15 //P8_11 
 #define SCL 14 //P8_12
 #define SDA_READ  5 //P9_27
 #define SCL_READ  3 //P9_28
 volatile register uint32_t __R30;  
 volatile register uint32_t __R31;
+int i=0;
 volatile uint16_t *slave_address = (volatile uint16_t *)(0x00010000);
 volatile uint8_t *sda_write = (volatile uint8_t *)(0x00010000 +16);
 volatile uint8_t *sda_read = (volatile uint8_t *)(0x00010000 +24);
@@ -35,14 +37,14 @@ volatile uint8_t *sda_flag_write = (volatile uint8_t *)(0x00010000 +32);
 volatile uint8_t *sda_flag_read  = (volatile uint8_t *)(0x00010000 +40);
 volatile uint8_t *read_or_write  = (volatile uint8_t *)(0x00010000 +48);
 volatile uint8_t *stop_bit = (volatile uint8_t *)(0x00010000 +56);
-bool started= false;
-void set_scl(void);
+int started= 0;
+void set_scl(void)
 {
-  __R30 & = ~(1 << SCL); //Apply zero voltage to the base so as to turn off the transistor
+  __R30 &= ~(1 << SCL); //Apply zero voltage to the base so as to turn off the transistor
 }
 void set_sda(void)
 {
-  __R30 & = ~(1 << SDA); //Apply zero voltage to the base so as to turn off the transistor
+  __R30 &= ~(1 << SDA); //Apply zero voltage to the base so as to turn off the transistor
 }
 void clear_sda(void)
 {
@@ -52,7 +54,7 @@ void clear_scl(void)
 {
   __R30 |= (1 << SCL); //Apply high voltage to the base so as to pull scl line low.
 }
-bool read_sda(void)
+int read_sda(void)
 {
   if(__R31 & (1 << SDA_READ ))
   {
@@ -63,7 +65,7 @@ bool read_sda(void)
     return 0;
   }     
 }
-bool read_scl(void)
+int read_scl(void)
 {
   if(__R31 & (1 << SCL_READ ))
   {
@@ -73,6 +75,13 @@ bool read_scl(void)
   {
     return 0;
   }     
+}
+void I2C_delay(void)
+{
+  for (i=0;i<1000;i++)
+  {
+    //Added Delay to achieve minimum high and low period for SCL in Standard Mode
+  }
 }
 
 void start_condition(void)
@@ -88,22 +97,16 @@ void start_condition(void)
   I2C_delay();
   }
   //SCL is High, pull SDA low in order to give the start bit
-  clear_sda;
-  clear_scl;
+  clear_sda();
+  clear_scl();
   I2C_delay();
-  started = true;
+  started = 1;
 }
-void I2C_delay(void)
-{
-  for (int i=0;i<1000;i++)
-  {
-    //Added Delay to achieve minimum high and low period for SCL in Standard Mode
-  }
-}
+
 void bitbang_address(uint16_t address,uint8_t read_or_write)
 {
   
-  for (int i =0;i<7;i++)
+  for (i =0;i<7;i++)
   {
     if((address<<i) && 0x40)
     {
@@ -147,12 +150,11 @@ if(read_sda())
 }
 int write_byte()
 {
-  int ack;
   start_condition();
   uint8_t sda_val=*sda_write;
-  for(int i =0;i<8;i++)
+  for(i =0;i<8;i++)
   {
-      if((sda << i) & 0x80)
+      if((sda_val << i) & 0x80)
         set_sda();
       else
         clear_sda();
@@ -167,14 +169,14 @@ int write_byte()
   }
   set_scl();
   I2C_delay(); //Let the slave register the change in the clock
-  if(read sda()==0)
+  if(read_sda()==0)
     return 0;
   else
     return 1;
 }
-bool read_i2c_bit(void)
+int read_i2c_bit(void)
 {
-  bool bit; 
+  int bit; 
   set_sda();
   set_scl(); //Ask the slave to write a new value
   while(read_scl()==0)
@@ -190,11 +192,11 @@ bool read_i2c_bit(void)
 
 uint8_t read_byte()
 {
-    uint8_t sda_dat=0;
-    for(int i=0;i<8;i++)
+    volatile uint8_t sda_dat=0;
+    for(i=0;i<8;i++)
     {
       sda_dat = (sda_dat << 1);
-      sda_dat | = read_i2c_bit(); 
+      sda_dat |= read_i2c_bit(); 
     }
     return sda_dat ;
 }
@@ -212,7 +214,7 @@ void I2C_stop_condition(void)
   I2C_delay();
   set_sda();
   I2C_delay();
-  started=false;
+  started=0;
 }
 void main()
 {
@@ -235,14 +237,14 @@ void main()
     Only bitbanging bits 0-6 of the address and the read/
     write bit
     */
-    volatile uint16_t slave_address= (*slave_address);
-    volatile uint8_t  read_or_write =(*read_or_write);
-    bitbang_address(slave_address,read_or_write);
+   volatile uint16_t slave_address_val= *slave_address;
+   volatile uint8_t  read_or_write_val  = *read_or_write;
+    bitbang_address(slave_address_val,read_or_write_val);
 
   
   while((*stop_bit)==0)
   {
-    if(read_or_write==1) //Master wants to write Data
+    if(read_or_write_val==1) //Master wants to write Data
     {
       int ack=1;
       while(!(*sda_flag_write)); //Block until the sda value has been written to the memory  
@@ -255,7 +257,7 @@ void main()
     else                //Master wants to read data
     {
 
-      uint8_t sda_data= read_byte();
+      volatile uint8_t sda_data= read_byte();
       //send ack bit
       clear_sda();
       I2C_delay();
@@ -267,7 +269,7 @@ void main()
       }
       clear_scl();
       *sda_read=sda_data;
-      sda_flag_read=1;
+      *sda_flag_read=1;
 
     }
   }
