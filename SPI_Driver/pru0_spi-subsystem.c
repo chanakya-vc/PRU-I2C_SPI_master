@@ -32,6 +32,7 @@
 
 #define DRIVER_NAME "pru0_spi_vc"
 
+uint8_t spi_lsb_first_val;
 struct pru0_spi {
 	struct spi_master *master;
 	void *Data_pointer_mosi;
@@ -48,7 +49,6 @@ static int pru0_spi_setup(struct spi_device *spi)
 {
 	struct pru0_spi *pru0 = spi_master_get_devdata(spi->master);
 	uint8_t spi_cs_val;
-	uint8_t spi_lsb_first_val;
 	uint8_t spi_cpol_val;
 	uint8_t spi_cpha_val;
 
@@ -88,28 +88,70 @@ static int pru0_spi_setup(struct spi_device *spi)
 static int pru0_spi_transfer_one(struct spi_master *master,
 		struct spi_device *spi, struct spi_transfer *t)
 {
-	const uint8_t *tx_buf = t->tx_buf;
+	int i;
+	void *tx_buf = (void *)t->tx_buf;
 	uint8_t *rx_buf = t->rx_buf;
 	struct pru0_spi *pru0 = spi_master_get_devdata(master);
-	uint8_t mosi_transfer = *tx_buf;
 	uint8_t mosi_flag_val = 0x1;
 	uint8_t miso_flag_val = 0;
 	void *mosi = pru0->Data_pointer_mosi;
 	void *miso = pru0->Data_pointer_miso;
 	void *mosi_flag = pru0->flag_mosi;
 	void *miso_flag = pru0->flag_miso;
-
-	if (tx_buf != NULL) {
-		iowrite8(mosi_transfer, mosi);
-		iowrite8(mosi_flag_val, mosi_flag);	//set value for the flag to 1 
+	unsigned len= t->len;
+	unsigned int mask_msb=0;
+	unsigned int mask_lsb=0x80;
+	for(i=0;i<8;i++)
+	{
+		mask_msb+=(1<<(len-i));
 	}
+	for(i=0;i<len;i++)
+	{
+		if(spi_lsb_first_val) //MSB first transfer
+		{
+		    void *tx_buf_val =(void *)tx_buf;
+			void *tx_buf_val1=(void *)((uintptr_t)tx_buf_val <<(uintptr_t) (8*i));
+			void *tx_buf_val2=(void *)((uintptr_t)tx_buf_val1 &(uintptr_t) mask_msb);
+			void *tx_buf_val3=(void *)((uintptr_t)tx_buf_val2 >> (uintptr_t) (len-(8*(i+1))));
+			uint8_t mosi_transfer = *(uint8_t *)tx_buf_val3;
+			if (tx_buf != NULL) 
+			{
+				iowrite8(mosi_transfer, mosi);
+				iowrite8(mosi_flag_val, mosi_flag);	//set value for the flag to 1 
+			}
 
-	while (!(ioread8(miso_flag))) ;
+			while (!(ioread8(miso_flag))) ;
 
-	if (miso != NULL) {
-		*rx_buf = ioread8(miso);
-		iowrite8(miso_flag_val, miso_flag);	//set value for the flag back to 0
+			if (miso != NULL) 
+			{
+				*rx_buf = ioread8(miso);
+				iowrite8(miso_flag_val, miso_flag);	//set value for the flag back to 0
+			}
+
+		}
+		else
+		{
+			void *tx_buf_val =(void *)tx_buf;
+			void *tx_buf_val1=(void *)((uintptr_t)tx_buf_val >>(uintptr_t) (8*i));
+			void *tx_buf_val2=(void *)((uintptr_t)tx_buf_val1 & (uintptr_t) mask_lsb);
+			uint8_t mosi_transfer = *(uint8_t *)tx_buf_val2;
+			if (tx_buf != NULL) 
+			{
+				iowrite8(mosi_transfer, mosi);
+				iowrite8(mosi_flag_val, mosi_flag);	//set value for the flag to 1 
+			}
+
+			while (!(ioread8(miso_flag))) ;
+
+			if (miso != NULL) 
+			{
+				*rx_buf = ioread8(miso);
+				iowrite8(miso_flag_val, miso_flag);	//set value for the flag back to 0
+			}
+
+		}
 	}
+	
 
 	return 0;
 }
