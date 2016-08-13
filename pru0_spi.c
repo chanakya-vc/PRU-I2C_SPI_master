@@ -19,7 +19,7 @@
  *
  *3) The original author shall not held for any loss arising from using this code.
  *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   but WITHOUT ANY WARRANTY; without warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
  */
 
@@ -30,7 +30,7 @@
 #define MOSI	15	//P8_11
 #define CLK	14	//P8_12
 #define MISO	5	//P9_27
-#define CS	3	//P9_28
+#define CS	2	//P9_30
 
 volatile register uint32_t __R30;
 volatile register uint32_t __R31;
@@ -90,7 +90,7 @@ void main()
 
 		if (!(*set_cs))
 			__R30 &= ~(1 << CS);
-		else
+		else 	
 			__R30 |= (1 << CS);
 
 		if (*set_lsb_tranfer) {

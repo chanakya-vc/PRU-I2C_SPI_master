@@ -99,7 +99,7 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 	void *mosi_flag = pru0->flag_mosi;
 	void *miso_flag = pru0->flag_miso;
 	unsigned len= t->len;
-	unsigned int mask_msb=0xff <<(len-8);
+	unsigned int mask_msb=0xff <<((len*8)-8);
 	unsigned int mask_lsb=0x80;
 	for(i=0;i<len;i++)
 	{
