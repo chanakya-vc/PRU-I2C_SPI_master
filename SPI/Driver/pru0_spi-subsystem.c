@@ -97,6 +97,7 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 	//uint64_t mosi_value = *tx_buf;
 	uint8_t *mosi_ptr_msb =  (uint8_t *)tx_buf;
 	uint8_t *mosi_ptr_lsb = mosi_ptr_msb;
+	unsigned len= t->len;
 	for(i=0;i<len;i++)
 	{
 		//make mosi_ptr_lsb point to the lsb byte in the buffer
@@ -106,7 +107,6 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 	void *miso = pru0->Data_pointer_miso;
 	void *mosi_flag = pru0->flag_mosi;
 	void *miso_flag = pru0->flag_miso;
-	unsigned len= t->len;
 	//uint64_t mask_msb= (0xff <<((len*8)-8));
 	//uint64_t mask_lsb=0xff;
 	for(i=0;i<len;i++)
