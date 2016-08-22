@@ -1,0 +1,14 @@
+*.lst
+*.obj
+*.pp
+*.s
+pru0_i2c
+gen/*
+src/*
+.tmp_versions /*
+*.o
+*.cmd
+*.dwo
+*.c~
+*.o.cmd
+*.ko.cmd

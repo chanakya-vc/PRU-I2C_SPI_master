@@ -1,0 +1,35 @@
+/*
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+ 
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "ti,beaglebone", "ti,beaglebone-black", "beagle,pru0-spi";
+
+	/* Identification */
+	part-number = "bb-pru0-spi";
+	version = "00A0";
+
+	fragment@1 {
+		target = <&ocp>;
+		__overlay__ {
+			pru-spi {
+				#address-cells = <1>;
+				#size-cells = <0>;
+				num-cs = <2>;
+
+				compatible = "beagle,pru0-spi";
+
+				spidev@0 {
+					compatible = "linux,spidev";
+					spi-max-frequency = <50000000>;
+					reg = <0>;
+				};
+			};
+		};
+	};
+};
