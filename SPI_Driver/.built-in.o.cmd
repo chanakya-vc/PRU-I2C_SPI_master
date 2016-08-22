@@ -1,1 +1,0 @@
-cmd_/home/vc/Desktop/Beagle_Gsoc/PRU-I2C_SPI_master/SPI_Driver/built-in.o :=  rm -f /home/vc/Desktop/Beagle_Gsoc/PRU-I2C_SPI_master/SPI_Driver/built-in.o; /home/vc/Beagle_toolchains/gcc-linaro-5.3-2016.02-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-ar rcsD /home/vc/Desktop/Beagle_Gsoc/PRU-I2C_SPI_master/SPI_Driver/built-in.o
