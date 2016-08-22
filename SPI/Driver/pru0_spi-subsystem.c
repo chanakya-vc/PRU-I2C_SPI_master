@@ -95,7 +95,13 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 	uint8_t mosi_flag_val = 0x1;
 	uint8_t miso_flag_val = 0;
 	//uint64_t mosi_value = *tx_buf;
-	uint8_t *mosi_ptr =  (uint8_t *)tx_buf; 
+	uint8_t *mosi_ptr_msb =  (uint8_t *)tx_buf;
+	uint8_t *mosi_ptr_lsb = mosi_ptr_msb;
+	for(i=0;i<len;i++)
+	{
+		//make mosi_ptr_lsb point to the lsb byte in the buffer
+		mosi_ptr_lsb++;
+	}  
 	void *mosi = pru0->Data_pointer_mosi;
 	void *miso = pru0->Data_pointer_miso;
 	void *mosi_flag = pru0->flag_mosi;
@@ -107,12 +113,7 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 	{
 		if(spi_lsb_first_val) //MSB first transfer
 		{
-			/*uint64_t mosi_value_temp = mosi_value;
-			mosi_value_temp = (mosi_value_temp << (8*i));
-		    mosi_value_temp &= mask_msb;
-		    mosi_value_temp = (mosi_value_temp >> ((len*8)-(8*(i+1))));
-			uint8_t mosi_transfer = (uint8_t) mosi_value_temp;*/
-			uint8_t mosi_transfer = *mosi_ptr;
+			uint8_t mosi_transfer = *mosi_ptr_msb;
 			if (tx_buf != NULL) 
 			{
 				iowrite8(mosi_transfer, mosi);
@@ -127,14 +128,11 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 				iowrite8(miso_flag_val, miso_flag);	//set value for the flag back to 0
 			}
 
-			mosi_ptr++ ;
+			mosi_ptr_msb++ ; //Points to the next byte on the right
 		}
-		/*else
+		else
 		{
-			uint64_t mosi_value_temp = mosi_value;	
-			mosi_value_temp = (mosi_value_temp >> (8*i));
-		    mosi_value_temp &=  mask_lsb;
-			uint8_t mosi_transfer =  (uint8_t)mosi_value_temp;
+			uint8_t mosi_transfer =  *mosi_ptr_lsb;
 			if (tx_buf != NULL) 
 			{
 				iowrite8(mosi_transfer, mosi);
@@ -149,7 +147,8 @@ static int pru0_spi_transfer_one(struct spi_master *master,
 				iowrite8(miso_flag_val, miso_flag);	//set value for the flag back to 0
 			}
 
-		}*/
+		mosi_ptr_lsb-- ; //Points to the next byte on the left
+		}
 
 	}
 	
