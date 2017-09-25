@@ -1,4 +1,4 @@
-#Exposing the PRU as an I2C and SPI Master Controller. 
+# Exposing the PRU as an I2C and SPI Master Controller. 
 This is the repository having all the source code for the project done under BeagleBoard.org for Google Summer Of Code-2016
 
 Please see the [wiki](https://github.com/chanakya-vc/PRU-I2C_SPI_master/wiki) for a detailed documentation on the project.
